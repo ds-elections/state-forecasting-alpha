@@ -1,3 +1,3 @@
 ## CA-forecasting
 
-EJ Arce
+EJ Arce and Jonathan Matz
