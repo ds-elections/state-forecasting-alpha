@@ -1,0 +1,18 @@
+Import
+================
+EJ Arce
+4/2/2017
+
+### Import
+
+``` r
+LegResults <- read.dta("032_StateLegForecast_CAcopy/SLERs1967to2015_20160912b_CA.dta")
+```
+
+### Tidy
+
+``` r
+# Selecting variables of interest (only old variables)
+LegResults <- LegResults %>%
+  select(caseid, v05, v06, v06b, v07, v09, v09z, 21:33, 35, v43, v53, v56, v57, v58)
+```
