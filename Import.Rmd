@@ -10,12 +10,15 @@ knitr::opts_chunk$set(echo = TRUE)
 library(foreign)
 library(dplyr)
 library(tidyverse)
+library(readxl)
 ```
 
 ### Import
 
 ```{r}
 LegResults <- read.dta("032_StateLegForecast_CAcopy/SLERs1967to2015_20160912b_CA.dta")
+threeoffices9008 <- read_excel("032_StateLegForecast_CAcopy/aaa_All_States_1968_2010_2013_03_22_CAonly.xlsx")
+threeoffices9002 <- read_excel("032_StateLegForecast_CAcopy/AK_CA_Districts_1968_2010_2012_01_18_CAonly.xlsx")
 ```
 
 ### Tidy
@@ -24,5 +27,10 @@ LegResults <- read.dta("032_StateLegForecast_CAcopy/SLERs1967to2015_20160912b_CA
 # Selecting variables of interest (only old variables)
 LegResults <- LegResults %>%
   select(caseid, v05, v06, v06b, v07, v09, v09z, 21:33, 35, v43, v53, v56, v57, v58)
+# Selecting variables of interest for the database of results for 3 offices
+threeoffices9002 <- threeoffices9002 %>%
+  select(-(11:13))
+threeoffices9008 <- threeoffices9008 %>%
+  select(1:4, 6:9, 11, 12, 15, 16)
 ```
 
