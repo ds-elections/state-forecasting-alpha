@@ -36,8 +36,9 @@ threeoffices9008 <- threeoffices9008 %>%
   rename(year = v05, District = v09, chamber = v07)
 
 threeoffices6688 <- threeoffices6688 %>%
-  select(1, 3, 4, (17:24)) %>%
-  rename(District = dist)
+  select(1, 3, 4, (17:25)) %>%
+  rename(District = dist) %>%
+  filter(Dummy1 == 1)
   
 threeoffices6688$chamber <- ifelse(threeoffices6688$chamber == "S", "SEN", "HS")
 ```
