@@ -27,7 +27,7 @@ threeoffices6688 <- read_excel("032_StateLegForecast_CAcopy/033_CA_1966to1988_20
 ```{r}
 # Selecting variables of interest (only old variables)
 LegResults <- LegResults %>%
-  select(caseid, v05, v06, v06b, v07, v09, v09z, 21:33, 35, v43, v53, v56, v57, v58)
+  select(caseid, v05, v07, v09, v09z, 21:28, 30:33, v53, v56, v57, v58)
 # Selecting variables of interest for the database of results for 3 offices
 threeoffices9002 <- threeoffices9002 %>%
   select(-(11:13))
