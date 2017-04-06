@@ -19,6 +19,7 @@ library(readxl)
 LegResults <- read.dta("032_StateLegForecast_CAcopy/SLERs1967to2015_20160912b_CA.dta")
 threeoffices9008 <- read_excel("032_StateLegForecast_CAcopy/aaa_All_States_1968_2010_2013_03_22_CAonly.xlsx")
 threeoffices9002 <- read_excel("032_StateLegForecast_CAcopy/AK_CA_Districts_1968_2010_2012_01_18_CAonly.xlsx")
+threeoffices6688 <- read_excel("032_StateLegForecast_CAcopy/033_CA_1966to1988_20160715_FromNicole.xlsx")
 ```
 
 ### Tidy
@@ -31,6 +32,11 @@ LegResults <- LegResults %>%
 threeoffices9002 <- threeoffices9002 %>%
   select(-(11:13))
 threeoffices9008 <- threeoffices9008 %>%
-  select(1:4, 6:9, 11, 12, 15, 16)
+  select(2:4, 6:9, 11, 12, 15, 16) %>%
+  rename(year = v05, District = v09)
+```
+
+```{r}
+
 ```
 
