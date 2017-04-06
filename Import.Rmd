@@ -45,6 +45,6 @@ threeoffices6688$chamber <- ifelse(threeoffices6688$chamber == "S", "SEN", "HS")
 
 ```{r}
 # Joining threeoffices6688 and threeoffices9008 into threeoffices
-threeoffices <- full_join(threeoffices6688, threeoffices9008, key = "year")
+threeoffices6008 <- full_join(threeoffices6688, threeoffices9008, key = "year")
 ```
 
