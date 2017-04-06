@@ -18,7 +18,6 @@ library(readxl)
 ```{r}
 LegResults <- read.dta("032_StateLegForecast_CAcopy/SLERs1967to2015_20160912b_CA.dta")
 threeoffices9008 <- read_excel("032_StateLegForecast_CAcopy/aaa_All_States_1968_2010_2013_03_22_CAonly.xlsx")
-threeoffices9002 <- read_excel("032_StateLegForecast_CAcopy/AK_CA_Districts_1968_2010_2012_01_18_CAonly.xlsx")
 threeoffices6688 <- read_excel("032_StateLegForecast_CAcopy/033_CA_1966to1988_20160715_FromNicole.xlsx")
 ```
 
@@ -28,15 +27,23 @@ threeoffices6688 <- read_excel("032_StateLegForecast_CAcopy/033_CA_1966to1988_20
 # Selecting variables of interest (only old variables)
 LegResults <- LegResults %>%
   select(caseid, v05, v07, v09, v09z, 21:28, 30:33, v53, v56, v57, v58)
-# Selecting variables of interest for the database of results for 3 offices
-threeoffices9002 <- threeoffices9002 %>%
-  select(-(11:13))
+# Selecting variables of interest for the database of results for 3 offices, recoding v07 to return SEN or HS, and renaming v07 as "chamber" for 9008.
+
+threeoffices9008$v07 <- ifelse(threeoffices9008$v07 == 8, "SEN", "HS")
+
 threeoffices9008 <- threeoffices9008 %>%
   select(2:4, 6:9, 11, 12, 15, 16) %>%
-  rename(year = v05, District = v09)
+  rename(year = v05, District = v09, chamber = v07)
+
+threeoffices6688 <- threeoffices6688 %>%
+  select(1, 3, 4, (17:24)) %>%
+  rename(District = dist)
+  
+threeoffices6688$chamber <- ifelse(threeoffices6688$chamber == "S", "SEN", "HS")
 ```
 
 ```{r}
-
+# Joining threeoffices6688 and threeoffices9008 into threeoffices
+threeoffices <- full_join(threeoffices6688, threeoffices9008, key = "year")
 ```
 
