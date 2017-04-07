@@ -15,7 +15,7 @@ library(readxl)
 
 ### Import
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 LegResults <- read.dta("032_StateLegForecast_CAcopy/SLERs1967to2015_20160912b_CA.dta")
 threeoffices9008 <- read_excel("032_StateLegForecast_CAcopy/aaa_All_States_1968_2010_2013_03_22_CAonly.xlsx")
 threeoffices6688 <- read_excel("032_StateLegForecast_CAcopy/033_CA_1966to1988_20160715_FromNicole.xlsx")
@@ -23,7 +23,7 @@ threeoffices6688 <- read_excel("032_StateLegForecast_CAcopy/033_CA_1966to1988_20
 
 ### Tidy
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # Selecting variables of interest (only old variables)
 LegResults <- LegResults %>%
   select(caseid, v05, v07, v09z, 23:28, 30:33) %>%
@@ -49,10 +49,14 @@ threeoffices6688 <- threeoffices6688 %>%
 threeoffices6688$chamber <- ifelse(threeoffices6688$chamber == "S", "SEN", "HS")
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # Joining threeoffices6688 and threeoffices9008 into threeoffices
 threeoffices6608 <- full_join(threeoffices6688, threeoffices9008, key = "year")
+
+# Create threeoffices1016
 threeoffices1016 <- read_excel("032_StateLegForecast_CAcopy/California_2010_2016.xlsx")
+
+# Join threeoffices6608 and threeoffices1016
 threeoffices6616 <- full_join(threeoffices6608, threeoffices1016, key = "year")
 ```
 
