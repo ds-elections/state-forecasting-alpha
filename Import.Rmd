@@ -33,7 +33,7 @@ LegResults <- LegResults %>%
          termlength = v15,
          electiontype = v16)
 
-# Selecting variables of interest for the database of results for 3 offices, recoding v07 to return SEN or HS, and renaming v07 as "chamber" for 9008.
+# Selecting variables of interest for the database of results for 3 offices, recoding v07 to return SEN or HS, and renaming v07 as "chamber" for 9008
 
 threeoffices9008$v07 <- ifelse(threeoffices9008$v07 == 8, "SEN", "HS")
 
