@@ -26,7 +26,13 @@ threeoffices6688 <- read_excel("032_StateLegForecast_CAcopy/033_CA_1966to1988_20
 ```{r}
 # Selecting variables of interest (only old variables)
 LegResults <- LegResults %>%
-  select(caseid, v05, v07, v09, v09z, 21:28, 30:33, v53, v56, v57, v58)
+  select(caseid, v05, v07, v09z, 23:28, 30:33) %>%
+  rename(year = v05,
+         chamber = v07,
+         District = v09z,
+         termlength = v15,
+         electiontype = v16)
+
 # Selecting variables of interest for the database of results for 3 offices, recoding v07 to return SEN or HS, and renaming v07 as "chamber" for 9008.
 
 threeoffices9008$v07 <- ifelse(threeoffices9008$v07 == 8, "SEN", "HS")
