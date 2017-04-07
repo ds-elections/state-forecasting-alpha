@@ -54,3 +54,9 @@ threeoffices6688$chamber <- ifelse(threeoffices6688$chamber == "S", "SEN", "HS")
 threeoffices6608 <- full_join(threeoffices6688, threeoffices9008, key = "year")
 ```
 
+### Load the Data for 2016 Results:
+```{r, warning=FALSE, message=FALSE}
+LegResults2016 <- read_excel("032_StateLegForecast_CAcopy/CA2016GenOffice.xls")
+```
+
+### Join the Datasets
