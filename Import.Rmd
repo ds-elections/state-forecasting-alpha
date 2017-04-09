@@ -51,7 +51,6 @@ LegResults16 <- LegResults16 %>%
          party = partyoriginal,
          votes = v23) %>%
   filter(party == c("Democratic", "Republican"))
-
 LegResults16$chamber <- ifelse(LegResults16$chamber == 8, "SEN", "HS")
 LegResults16$party <- ifelse(LegResults16$party == "Democratic", "Dem", "Repub")
 
