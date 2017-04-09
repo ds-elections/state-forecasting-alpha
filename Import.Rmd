@@ -6,7 +6,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE)
 library(foreign)
 library(dplyr)
 library(tidyverse)
@@ -16,32 +16,44 @@ library(readxl)
 ### Import
 
 ```{r, warning=FALSE, message=FALSE}
-LegResults <- read.dta("032_StateLegForecast_CAcopy/SLERs1967to2015_20160912b_CA.dta")
+LegResults6814 <- read.dta("032_StateLegForecast_CAcopy/SLERs1967to2015_20160912b_CA.dta")
+
+LegResults16 <- read_excel("032_StateLegForecast_CAcopy/001_CA2016GenOfficecopy.xls")
+
 threeoffices9008 <- read_excel("032_StateLegForecast_CAcopy/aaa_All_States_1968_2010_2013_03_22_CAonly.xlsx")
+
 threeoffices6688 <- read_excel("032_StateLegForecast_CAcopy/033_CA_1966to1988_20160715_FromNicole.xlsx")
 ```
 
-### Tidy
+### Wrangle and Tidy
 
 ```{r, warning=FALSE, message=FALSE}
 # Selecting and renaming variables of interest; Filtering the dataset to only include democratic and republican candidates.
-LegResults <- LegResults %>%
-  select(v05, v07, v09z, 23, 24, 27:28, 30:33) %>%
+LegResults6814 <- LegResults6814 %>%
+  select(v05, v07, v09z, v19, v21, v22, v23) %>%
   rename(year = v05,
          chamber = v07,
          District = v09z,
-         termlength = v15,
-         electiontype = v16,
+         candidate = v19,
          party = v21,
          incumbency = v22,
-         votes = v23,
-         winner = v24,
-         ID = v18,
-         candidate = v19) %>%
+         votes = v23) %>%
   filter(party == c(100, 200))
-LegResults$chamber <- ifelse(LegResults$chamber == 8, "SEN", "HS")
-LegResults$party <- ifelse(LegResults$party == 100, "Dem", "Repub")
-  
+LegResults6814$chamber <- ifelse(LegResults6814$chamber == 8, "SEN", "HS")
+LegResults6814$party <- ifelse(LegResults6814$party == 100, "Dem", "Repub")
+
+LegResults16 <- LegResults16 %>%
+  select(v05, v07, v09, name_original, partyoriginal, v23) %>%
+  rename(year = v05,
+         chamber = v07,
+         District = v09,
+         candidate = name_original,
+         party = partyoriginal,
+         votes = v23) %>%
+  filter(party == c("Democratic", "Republican"))
+
+LegResults16$chamber <- ifelse(LegResults16$chamber == 8, "SEN", "HS")
+LegResults16$party <- ifelse(LegResults16$party == "Democratic", "Dem", "Repub")
 
 # Selecting variables of interest for the database of results for 3 offices, recoding v07 to return SEN or HS, and renaming v07 as "chamber" for 9008
 
@@ -59,6 +71,8 @@ threeoffices6688 <- threeoffices6688 %>%
 threeoffices6688$chamber <- ifelse(threeoffices6688$chamber == "S", "SEN", "HS")
 ```
 
+### Join
+
 ```{r, warning=FALSE, message=FALSE}
 # Joining threeoffices6688 and threeoffices9008 into threeoffices
 threeoffices6608 <- full_join(threeoffices6688, threeoffices9008, key = "year")
@@ -71,9 +85,3 @@ threeoffices1016$chamber <- ifelse(threeoffices1016$chamber == "S", "SEN", "HS")
 threeoffices6616 <- full_join(threeoffices6608, threeoffices1016, key = "year")
 ```
 
-### Load the Data for 2016 Results:
-```{r, warning=FALSE, message=FALSE}
-LegResults2016 <- read_excel("032_StateLegForecast_CAcopy/CA2016GenOffice.xls")
-```
-
-### Join the Datasets
