@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE, message=FALSE)
 library(foreign)
 library(dplyr)
 library(tidyverse)
+library(tidyr)
 library(readxl)
 ```
 
@@ -28,19 +29,22 @@ threeoffices6688 <- read_excel("032_StateLegForecast_CAcopy/033_CA_1966to1988_20
 ### Wrangle and Tidy
 
 ```{r, warning=FALSE, message=FALSE}
-# Selecting and renaming variables of interest; Filtering the dataset to only include democratic and republican candidates.
+# Selecting and renaming variables of interest; Filtering the dataset to only include democratic and republican candidates
 LegResults6814 <- LegResults6814 %>%
-  select(v05, v07, v09z, v19, v21, v22, v23) %>%
+  select(v05, v07, v09z, v21, v22, v23, v44, v45) %>%
   rename(year = v05,
          chamber = v07,
          District = v09z,
-         candidate = v19,
          party = v21,
          incumbency = v22,
-         votes = v23) %>%
-  filter(party == c(100, 200))
+         votes = v23,
+         cand_last = v44,
+         cand_first = v45) %>%
+  filter(party == c(100, 200)) %>%
+  unite(candidate, cand_first, cand_last, sep = " ")
 LegResults6814$chamber <- ifelse(LegResults6814$chamber == 8, "SEN", "HS")
 LegResults6814$party <- ifelse(LegResults6814$party == 100, "Dem", "Repub")
+LegResults6814 <- aggregate(x = LegResults6814["votes"], by = LegResults6814[c("year", "chamber", "District", "party", "incumbency", "candidate")], sum)
 
 LegResults16 <- LegResults16 %>%
   select(v05, v07, v09, name_original, partyoriginal, v23) %>%
@@ -53,6 +57,7 @@ LegResults16 <- LegResults16 %>%
   filter(party == c("Democratic", "Republican"))
 LegResults16$chamber <- ifelse(LegResults16$chamber == 8, "SEN", "HS")
 LegResults16$party <- ifelse(LegResults16$party == "Democratic", "Dem", "Repub")
+LegResults16 <- aggregate(x = LegResults16["votes"], by = LegResults16[c("year", "chamber", "District", "party","candidate")], sum)
 
 # Selecting variables of interest for the database of results for 3 offices, recoding v07 to return SEN or HS, and renaming v07 as "chamber" for 9008
 
@@ -68,6 +73,8 @@ threeoffices6688 <- threeoffices6688 %>%
   filter(Dummy1 == 1)
   
 threeoffices6688$chamber <- ifelse(threeoffices6688$chamber == "S", "SEN", "HS")
+
+
 ```
 
 ### Join
@@ -82,5 +89,7 @@ threeoffices1016$chamber <- ifelse(threeoffices1016$chamber == "S", "SEN", "HS")
 
 # Join threeoffices6608 and threeoffices1016
 threeoffices6616 <- full_join(threeoffices6608, threeoffices1016, key = "year")
+
+
 ```
 
