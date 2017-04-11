@@ -93,3 +93,11 @@ threeoffices6616 <- full_join(threeoffices6608, threeoffices1016, key = "year")
 
 ```
 
+### Viewing Clean Data
+
+```{r}
+head(threeoffices6616)
+head(LegResults16)
+head(LegResults6814)
+```
+
