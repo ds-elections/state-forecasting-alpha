@@ -49,6 +49,12 @@ LegResults6814$chamber <- ifelse(LegResults6814$chamber == 8, "SEN", "HS")
 LegResults6814$party <- ifelse(LegResults6814$party == 100, "Dem", "Repub")
 LegResults6814 <- aggregate(x = LegResults6814["votes"], by = LegResults6814[c("year", "chamber", "District", "party", "incumbency", "candidate")], sum)
 
+LegResults6814$prez_party <- ifelse(LegResults6814$year == 1968|1978|1980|1994|1996|1998|2000|2010|2012|2014|2016, 1, -1)
+
+LegResults6814$mid_penalty <- ifelse(LegResults6814$year == 1968|1972|1976|1980|1984|1988|1992|1996|2000|2004|2008|2012|2016, 0, ifelse(LegResults6814$year == 1970|1974|1982|1986|1990|2002|2006, -1, 1))
+
+
+
 LegResults16 <- LegResults16 %>%
   select(v05, v07, v09, name_original, partyoriginal, v23, incumbency) %>%
   rename(year = v05,
