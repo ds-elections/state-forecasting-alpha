@@ -47,6 +47,12 @@ LegResults6814$chamber <- ifelse(LegResults6814$chamber == 8, "SEN", "HS")
 LegResults6814$party <- ifelse(LegResults6814$party == 100, "Dem", "Repub")
 LegResults6814 <- aggregate(x = LegResults6814["votes"], by = LegResults6814[c("year", "chamber", "District", "party", "incumbency", "candidate")], sum)
 
+LegResults6814 <- LegResults6814 %>%
+  spread(key = party, value = votes)
+
+LegResults16 <- LegResults16 %>%
+  spread(key = party, value = votes)
+
 LegResults16 <- LegResults16 %>%
   select(v05, v07, v09, name_original, partyoriginal, v23, incumbency) %>%
   rename(year = v05,
@@ -77,7 +83,7 @@ threeoffices <- threeoffices %>%
 ### Viewing Clean Data
 
 ```{r}
-head(threeoffices6616)
+head(threeoffices)
 head(LegResults16)
 head(LegResults6814)
 ```
