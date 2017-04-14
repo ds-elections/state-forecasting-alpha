@@ -127,4 +127,15 @@ Prez_Approv <- Prez_Approv %>%
   filter(start_year >= "1968")
 
 View(Econ_State)
+
+Econ_State <- Econ_State %>%
+  spread(key = Quarter, value = Income)
 ```
+
+### Joining legislative elections data with threeoffices
+
+```{r}
+Results <- full_join(LegResults, threeoffices, by = c("year", "chamber", "District"))
+```
+
+
