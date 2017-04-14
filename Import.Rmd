@@ -136,6 +136,8 @@ Econ_State <- Econ_State %>%
 
 ```{r}
 Results <- full_join(LegResults, threeoffices, by = c("year", "chamber", "District"))
+Results <- Results %>%
+  rename(Leg_Dem = Dem, Leg_Repub = Repub)
 ```
 
 
