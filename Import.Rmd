@@ -117,3 +117,15 @@ head(threeoffices)
 head(LegResults)
 ```
 
+### Presidential Approval Data:
+
+```{r}
+Econ_State <- read_excel("032_StateLegForecast_CAcopy/download-2.xls")
+Prez_Approv <- read_excel("032_StateLegForecast_CAcopy/Gallup_Prez_Approv_1937to2014_2014_10_22.xlsx")
+
+Prez_Approv <- Prez_Approv %>%
+  filter(start_year >= "1968")
+
+Econ_State <- Econ_State %>%
+  gather(`Year', key = quarter, value = income)
+```
