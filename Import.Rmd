@@ -120,7 +120,7 @@ head(LegResults)
 ### Presidential Approval Data:
 
 ```{r}
-Econ_State <- read_excel("032_StateLegForecast_CAcopy/download-2.xls")
+Econ_State <- read_excel("032_StateLegForecast_CAcopy/econ-state.xls")
 Prez_Approv <- read_excel("032_StateLegForecast_CAcopy/Gallup_Prez_Approv_1937to2014_2014_10_22.xlsx")
 
 Prez_Approv <- Prez_Approv %>%
