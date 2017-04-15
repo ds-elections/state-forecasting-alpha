@@ -1,5 +1,5 @@
 ---
-title: "Import"
+title: "Forecasting the 2018 California Legislative Election"
 author: "EJ Arce"
 date: "4/2/2017"
 output: github_document
@@ -110,12 +110,6 @@ threeoffices <- threeoffices %>%
 LegResults <- full_join(LegResults16, LegResults6814, by = c("year", "chamber", "District", "prez_party", "mid_penalty", "Dem", "Repub", "incumbent"))
 ```
 
-### Viewing Clean Data
-
-```{r}
-head(threeoffices)
-head(LegResults)
-```
 
 ### Presidential Approval Data:
 
@@ -129,7 +123,10 @@ Prez_Approv <- Prez_Approv %>%
 View(Econ_State)
 
 Econ_State <- Econ_State %>%
-  spread(key = Quarter, value = Income)
+  spread(key = Quarter, value = Income) %>%
+  mutate(I_IIpercent = (II-I)/I,
+         II_IIIpercent = (III-II)/II,
+         III_IVpercent = (IV-III)/III)
 ```
 
 ### Joining legislative elections data with threeoffices
@@ -140,4 +137,9 @@ Results <- Results %>%
   rename(Leg_Dem = Dem, Leg_Repub = Repub)
 ```
 
+### Viewing Clean Data
+
+```{r}
+View(Results)
+```
 
