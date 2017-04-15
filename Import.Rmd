@@ -112,7 +112,7 @@ LegResults <- full_join(LegResults16, LegResults6814, by = c("year", "chamber", 
 ```
 
 
-### Presidential Approval Data:
+### Importing presidential approval and economy strength data
 
 ```{r}
 Econ_State <- read_excel("032_StateLegForecast_CAcopy/econ-strength.xls")
@@ -125,7 +125,12 @@ Econ_State <- Econ_State %>%
   spread(key = Quarter, value = Income) %>%
   mutate(I_IIpercent = (II-I)/I,
          II_IIIpercent = (III-II)/II,
-         III_IVpercent = (IV-III)/III)
+         III_IVpercent = (IV-III)/III,
+         IV_Ipercent = (lead(I) - IV)/IV) %>%
+  mutate(perc_change = (4*I_IIpercent +
+                        3*IV_Ipercent +
+                        2*III_IVpercent +
+                        IV_Ipercent)/10)
 ```
 
 ### Joining legislative elections data with threeoffices
