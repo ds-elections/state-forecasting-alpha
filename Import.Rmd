@@ -12,6 +12,7 @@ library(dplyr)
 library(tidyverse)
 library(tidyr)
 library(readxl)
+library(ggplot2)
 ```
 
 ### Import
@@ -120,8 +121,6 @@ Prez_Approv <- read_excel("032_StateLegForecast_CAcopy/Gallup_Prez_Approv_1937to
 Prez_Approv <- Prez_Approv %>%
   filter(start_year >= "1968")
 
-View(Econ_State)
-
 Econ_State <- Econ_State %>%
   spread(key = Quarter, value = Income) %>%
   mutate(I_IIpercent = (II-I)/I,
@@ -134,12 +133,21 @@ Econ_State <- Econ_State %>%
 ```{r}
 Results <- full_join(LegResults, threeoffices, by = c("year", "chamber", "District"))
 Results <- Results %>%
-  rename(Leg_Dem = Dem, Leg_Repub = Repub)
+  rename(Leg_Dem = Dem, Leg_Repub = Repub) %>%
+  mutate(incumb_party = ifelse(incumbent == 1, "Democrat", ifelse(incumbent == 0, "No incumbent", "Republican")))
 ```
 
 ### Viewing Clean Data
 
 ```{r}
 View(Results)
+```
+
+### Some visualizations
+
+```{r}
+plot1 <- ggplot(Results) +
+  geom_point(mapping = aes(y = Leg_Dem, x = Leg_Repub, col = incumb_party)) +
+  scale_colour_manual(values = c("blue", "black", "red"))
 ```
 
