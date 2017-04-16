@@ -13,6 +13,8 @@ library(tidyverse)
 library(tidyr)
 library(readxl)
 library(ggplot2)
+library(leaflet)
+library(rgdal)
 ```
 
 ### Importing election results data
@@ -117,14 +119,13 @@ Prez_Approv <- Prez_Approv %>%
 Econ_State <- Econ_State %>%
   spread(key = Quarter, value = Income) %>%
   mutate(I_IIpercent = (II-I)/I,
-         II_IIIpercent = (III-II)/II,
-         III_IVpercent = (IV-III)/III,
-         IV_Ipercent = (lead(I) - IV)/IV) %>%
+         II_IIIpercent = (lag(III)-lag(II))/lag(II),
+         III_IVpercent = (lag(IV)-lag(III))/lag(III),
+         IV_Ipercent = (I - lag(IV))/lag(IV)) %>%
   mutate(perc_change = (4*I_IIpercent +
                         3*IV_Ipercent +
                         2*III_IVpercent +
-                        IV_Ipercent)/10) %>%
-  filter()
+                        IV_Ipercent)/10)
 ```
 
 ### Joining legislative elections data with threeoffices
@@ -136,8 +137,17 @@ Results <- full_join(LegResults, threeoffices, by = c("year", "chamber", "Distri
 
 Results <- Results %>%
   rename(Leg_Dem = Dem, Leg_Repub = Repub) %>%
-  mutate(incumb_party = ifelse(incumbent == 1, "Democrat", ifelse(incumbent == 0, "No incumbent", "Republican")))
+  mutate(incumb_party = ifelse(incumbent == 1, "Democrat", ifelse(incumbent == 0, "No incumbent", "Republican")),
+         Leg_winner = ifelse(Leg_Repub > Leg_Dem, "Republican", "Democract"))
 ```
+
+### Importing CA shapefiles
+
+```{r}
+SENshape <- readShapePoly("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/CA_SEN_shapefile/cb_2016_06_sldu_500k.shp")
+HSshape <- readShapePoly("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/CA_HS_shapefile/cb_2016_06_sldl_500k.shp")
+```
+
 
 ### Viewing Clean Data
 
@@ -148,9 +158,12 @@ View(Results)
 ### Some visualizations
 
 ```{r}
-plot1 <- ggplot(Results) +
-  geom_point(mapping = aes(y = Leg_Dem, x = Leg_Repub, col = incumb_party)) +
-  scale_colour_manual(values = c("blue", "black", "red")) +
+
+# How do elections with an incumbent compare to elections with open seats?
+
+plot1 <- ggplot(Results, aes(y = Leg_Dem, x = Leg_Repub)) +
+  geom_point(mapping = aes(col = incumb_party)) +
+  scale_colour_manual(values = c("blue", "grey", "red")) +
   geom_abline(intercept = 0, slope = 1)
 plot1
 ```
