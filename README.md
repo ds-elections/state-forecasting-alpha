@@ -8,3 +8,5 @@ We have obtained multiple datasets of results from California state elections fr
 
 ### Timeline
 * April 17: Legislative election results, national offices results, and covariate data all clean and joined for further modeling
+* April 19: Initial modelling and 2+ visualizations
+* April 24: Covariates and model improved
