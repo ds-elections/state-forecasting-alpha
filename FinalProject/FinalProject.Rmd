@@ -15,6 +15,7 @@ library(readxl)
 library(ggplot2)
 library(leaflet)
 library(rgdal)
+library(maptools)
 ```
 
 ### Importing election results data
@@ -158,7 +159,6 @@ View(Results)
 ### Some visualizations
 
 ```{r}
-
 # How do elections with an incumbent compare to elections with open seats?
 
 plot1 <- ggplot(Results, aes(y = Leg_Dem, x = Leg_Repub)) +
