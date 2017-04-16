@@ -20,11 +20,11 @@ library(ggplot2)
 We are importing three datasets and we will eventually join them. LegResults6814 consists of every candidate who ran for a seat in the California State Legislature from 1968 to 2014. LegResults16 includes such candidates who ran in 2016. Threeoffices includes the voting totals for three US offices (Presidential, Gubernatorial, and US Senate) in each of the California senatorial and assembly districts, from 1966 to 2016. This dataset previously consisted of three separate datasets, which Jonathan and I cleaned in R or excel, to create threeoffices.
 
 ```{r, warning=FALSE, message=FALSE}
-LegResults6814 <- read.dta("032_StateLegForecast_CAcopy/SLERs1967to2015_20160912b_CA.dta")
+LegResults6814 <- read.dta("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/SLERs1967to2015_20160912b_CA.dta")
 
-LegResults16 <- read_excel("032_StateLegForecast_CAcopy/001_CA2016GenOfficecopy.xls")
+LegResults16 <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/001_CA2016GenOfficecopy.xls")
 
-threeoffices <- read_excel("032_StateLegForecast_CAcopy/threeoffices662016copy.xlsx")
+threeoffices <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/threeoffices662016copy.xlsx")
 ```
 
 ### Cleaning election results data
@@ -108,8 +108,8 @@ threeoffices <- threeoffices %>%
 ### Importing and cleaning presidential approval and economy strength data
 
 ```{r}
-Econ_State <- read_excel("032_StateLegForecast_CAcopy/econ-strength.xls")
-Prez_Approv <- read_excel("032_StateLegForecast_CAcopy/Gallup_Prez_Approv_1937to2014_2014_10_22.xlsx")
+Econ_State <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/econ-strength.xls")
+Prez_Approv <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/Gallup_Prez_Approv_1937to2014_2014_10_22.xlsx")
 
 Prez_Approv <- Prez_Approv %>%
   filter(start_year >= "1968")
@@ -123,7 +123,8 @@ Econ_State <- Econ_State %>%
   mutate(perc_change = (4*I_IIpercent +
                         3*IV_Ipercent +
                         2*III_IVpercent +
-                        IV_Ipercent)/10)
+                        IV_Ipercent)/10) %>%
+  filter()
 ```
 
 ### Joining legislative elections data with threeoffices
@@ -149,7 +150,8 @@ View(Results)
 ```{r}
 plot1 <- ggplot(Results) +
   geom_point(mapping = aes(y = Leg_Dem, x = Leg_Repub, col = incumb_party)) +
-  scale_colour_manual(values = c("blue", "black", "red"))
-view(plot1)
+  scale_colour_manual(values = c("blue", "black", "red")) +
+  geom_abline(intercept = 0, slope = 1)
+plot1
 ```
 
