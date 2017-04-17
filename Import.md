@@ -100,6 +100,8 @@ LegResults <- full_join(LegResults16, LegResults6814, by = c("year", "chamber", 
 ### Importing presidential approval and economy strength data
 
 ``` r
+PrezApprove <- read_excel("032_StateLegForecast_CAcopy/Gallup_Prez_Approv_1966to2016.xlsx")
+
 Econ_State <- read_excel("032_StateLegForecast_CAcopy/econ-strength.xls")
 
 Econ_State <- Econ_State %>%
