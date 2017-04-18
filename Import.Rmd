@@ -131,13 +131,17 @@ Econ_State <- Econ_State %>%
                         IV_Ipercent)/10)
 ```
 
-### Joining legislative elections data with threeoffices
+### Joining legislative elections data with threeoffices, and joining Econ_State and PrezApprove to Results
 
 ```{r}
 Results <- full_join(LegResults, threeoffices, by = c("year", "chamber", "District"))
 Results <- Results %>%
   rename(Leg_Dem = Dem, Leg_Repub = Repub) %>%
   mutate(incumb_party = ifelse(incumbent == 1, "Democrat", ifelse(incumbent == 0, "No incumbent", "Republican")))
+
+Results <- left_join(Results, Econ_State, by = "year")
+Results <- left_join(Results, PrezApprove, by = "year")
+Results <- Results
 ```
 
 ### Viewing Clean Data
