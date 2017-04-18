@@ -159,6 +159,7 @@ SENshape <- readShapePoly("~/Desktop/state-forecasting-alpha/032_StateLegForecas
 HSshape <- readShapePoly("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/CA_HS_shapefile/cb_2016_06_sldl_500k.shp")
 
 SENshape <- fortify(SENshape, region = "NAME")
+HSshape <- fortify(HSshape, region = "NAME")
 ```
 
 
@@ -185,5 +186,11 @@ plot2 <- ggplot(Results, aes(y = perc_Dem, x = Approve)) +
   geom_point() +
   facet_grid(. ~ prez_party)
 plot2
+```
+
+```{r}
+plot3 <- ggplot(data = subset(Results, year = 2014, chamber = "SEN")) + geom_map(data = Results, aes(map_id = District, fill = Leg_Dem), map = SENshape) + expand_limits(x = SENshape$long, y = SENshape$lat)
+
+plot3
 ```
 
