@@ -145,7 +145,9 @@ Results <- Results %>%
 
 Results <- left_join(Results, Econ_State, by = "year")
 Results <- left_join(Results, PrezApprove, by = "year")
-Results <- Results
+Results <- Results %>%
+  mutate(ApprxParty = Approve*prez_party,
+         perc_Dem = Leg_Dem / (Leg_Dem + Leg_Repub))
 ```
 
 ### Importing CA shapefiles
@@ -172,5 +174,12 @@ plot1 <- ggplot(Results, aes(y = Leg_Dem, x = Leg_Repub)) +
   scale_colour_manual(values = c("blue", "grey", "red")) +
   geom_abline(intercept = 0, slope = 1)
 plot1
+```
+
+```{r}
+plot2 <- ggplot(Results, aes(y = perc_Dem, x = Approve)) +
+  geom_point() +
+  facet_grid(. ~ prez_party)
+plot2
 ```
 
