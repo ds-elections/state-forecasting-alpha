@@ -18,6 +18,7 @@ library(rgdal)
 library(maptools)
 library(rgeos)
 library(gpclib)
+library(scales)
 ```
 
 ### Importing election results data
@@ -190,7 +191,9 @@ plot2
 
 ```{r}
 plot3 <- ggplot(data = subset(Results, year = 2014, chamber = "SEN")) + geom_map(data = Results, aes(map_id = District, fill = Leg_Dem), map = SENshape) + expand_limits(x = SENshape$long, y = SENshape$lat)
-
 plot3
+
+plot4 <- ggplot(data = subset(Results, year = 2014, chamber = "SEN")) + geom_map(data = Results, aes(map_id = District, fill = perc_Dem), map = SENshape) + expand_limits(x = SENshape$long, y = SENshape$lat) + scale_fill_gradient2(low = muted("red"), mid = "white", midpoint = .5, high = muted("blue"), limits = c(0, 1))
+plot4
 ```
 
