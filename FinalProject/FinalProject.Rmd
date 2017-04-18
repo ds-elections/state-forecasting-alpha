@@ -16,6 +16,8 @@ library(ggplot2)
 library(leaflet)
 library(rgdal)
 library(maptools)
+library(rgeos)
+library(gpclib)
 ```
 
 ### Importing election results data
@@ -155,6 +157,8 @@ Results <- Results %>%
 ```{r}
 SENshape <- readShapePoly("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/CA_SEN_shapefile/cb_2016_06_sldu_500k.shp")
 HSshape <- readShapePoly("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/CA_HS_shapefile/cb_2016_06_sldl_500k.shp")
+
+SENshape <- fortify(SENshape, region = "NAME")
 ```
 
 
