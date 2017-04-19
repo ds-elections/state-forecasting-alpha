@@ -190,10 +190,23 @@ plot2
 ```
 
 ```{r}
-plot3 <- ggplot(data = subset(Results, year = 2014, chamber = "SEN")) + geom_map(data = Results, aes(map_id = District, fill = Leg_Dem), map = SENshape) + expand_limits(x = SENshape$long, y = SENshape$lat)
-plot3
 
-plot4 <- ggplot(data = subset(Results, year = 2014, chamber = "SEN")) + geom_map(data = Results, aes(map_id = District, fill = perc_Dem), map = SENshape) + expand_limits(x = SENshape$long, y = SENshape$lat) + scale_fill_gradient2(low = muted("red"), mid = "white", midpoint = .5, high = muted("blue"), limits = c(0, 1))
-plot4
+# Creating a subset of Results that only includes senatorial district voting totals in 2014.
+SEN14 <- Results %>%
+  filter(year == 2014, chamber == "SEN")
+SEN14$perc_Dem[is.na(SEN14$perc_Dem)] <- .5
+
+SEN14map <-
+  ggplot() +
+  geom_map(data = SEN14,
+           aes(map_id = District, fill = perc_Dem),
+           map = SENshape) +
+  expand_limits(x = SENshape$long, y = SENshape$lat) +
+  scale_fill_gradient2(low = muted("red"),
+                       mid = "white", midpoint = .5,
+                       high = muted("blue"),
+                       limits = c(0, 1)) +
+  ggtitle("Voting outcomes in the 2014 California State Senate Election")
+SEN14map
 ```
 
