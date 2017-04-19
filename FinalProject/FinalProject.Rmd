@@ -178,7 +178,8 @@ View(Results)
 plot1 <- ggplot(Results, aes(y = Leg_Dem, x = Leg_Repub)) +
   geom_point(mapping = aes(col = incumb_party)) +
   scale_colour_manual(values = c("blue", "grey", "red")) +
-  geom_abline(intercept = 0, slope = 1)
+  geom_abline(intercept = 0, slope = 1) +
+  ggtitle("The incumbency effect")
 plot1
 ```
 
