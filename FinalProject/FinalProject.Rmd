@@ -232,3 +232,19 @@ SEN14map <-
 SEN14map
 ```
 
+```{r}
+# A plot that tries to analyze the relationship between state of the economy and vote totals for a democratic candidate.
+
+Proportion_Prez_Dem <- Results$Prez_Dem/(Results$Prez_Dem + Results$Prez_Rep)
+
+Econ_Dem <- ggplot(Results, aes(x = perc_change, y = Proportion_Prez_Dem)) +
+  geom_point(aes(color = prez_party)) +
+  facet_grid(. ~ year) +
+  scale_colour_manual(values = c("blue","red"))
+  xlab("Percent Change in Real Income") +
+  ylab("Total Votes for a Democratic Presidential Candidate") +
+  ggtitle("The Relationship between the Economy and Voting for a Democratic Presidential Candidate")
+  
+Econ_Dem
+```
+
