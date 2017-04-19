@@ -237,7 +237,10 @@ SEN14map
 
 Proportion_Prez_Dem <- Results$Prez_Dem/(Results$Prez_Dem + Results$Prez_Rep)
 
-Econ_Dem <- ggplot(Results, aes(x = perc_change, y = Proportion_Prez_Dem)) +
+Results2 <- Results %>%
+  filter(Prez_Dem > 0 | Prez_Rep > 0, year < 2016)
+
+Econ_Dem <- ggplot(Results2, aes(x = perc_change, y = Proportion_Prez_Dem)) +
   geom_point(aes(color = prez_party)) +
   facet_grid(. ~ year) +
   scale_colour_manual(values = c("blue","red"))
