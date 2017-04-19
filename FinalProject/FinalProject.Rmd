@@ -6,7 +6,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message=FALSE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(foreign)
 library(dplyr)
 library(tidyverse)
@@ -129,7 +129,7 @@ Now both datasets are clean, and we will join them soon. However, first we need 
 
 ```{r}
 Econ_State <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/econ-strength.xls")
-PrezApprove <- read_excel("032_StateLegForecast_CAcopy/Gallup_Prez_Approv_1966to2016.xlsx")
+PrezApprove <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/Gallup_Prez_Approv_1966to2016.xlsx")
 
 PrezApprove <- PrezApprove %>%
   select(Year, Approve) %>%
@@ -174,13 +174,14 @@ Results <- left_join(Results, Econ_State, by = "year")
 Results <- left_join(Results, PrezApprove, by = "year")
 Results <- Results %>%
   mutate(ApprxParty = Approve*prez_party,
-         perc_Dem = Leg_Dem / (Leg_Dem + Leg_Repub))
+         perc_Dem = Leg_Dem / (Leg_Dem + Leg_Repub),
+         perc_Repub = Leg_Repub / (Leg_Dem + Leg_Repub))
 ```
 
 ### Fully clean dataset
 
 ```{r}
-View(Results)
+head(Results)
 ```
 
 ### Importing CA shapefiles
@@ -198,26 +199,20 @@ HSshape <- fortify(HSshape, region = "NAME")
 ### Some visualizations
 
 ```{r}
-# How do elections with an incumbent compare to elections with open seats?
-
 plot1 <- ggplot(Results, aes(y = Leg_Dem, x = Leg_Repub)) +
   geom_point(mapping = aes(col = incumb_party)) +
   scale_colour_manual(values = c("blue", "grey", "red")) +
   geom_abline(intercept = 0, slope = 1) +
+  ylab("Vote count for the Democratic Candidate") +
+  xlab("Vote count for the Republican Candidate") +
+  labs(col = "Incumbency status") +
   ggtitle("The incumbency effect")
 plot1
 ```
 
 ```{r}
-plot2 <- ggplot(Results, aes(y = perc_Dem, x = Approve)) +
-  geom_point() +
-  facet_grid(. ~ prez_party)
-plot2
-```
-
-```{r}
-
 # Creating a subset of Results that only includes senatorial district voting totals in 2014.
+
 SEN14 <- Results %>%
   filter(year == 2014, chamber == "SEN")
 SEN14$perc_Dem[is.na(SEN14$perc_Dem)] <- .5
@@ -232,6 +227,7 @@ SEN14map <-
                        mid = "white", midpoint = .5,
                        high = muted("blue"),
                        limits = c(0, 1)) +
+  labs(fill = "Proportion voting for a Democrat") +
   ggtitle("Voting outcomes in the 2014 California State Senate Election")
 SEN14map
 ```
