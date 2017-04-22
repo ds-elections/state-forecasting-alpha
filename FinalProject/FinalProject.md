@@ -267,7 +267,6 @@ plot1
 
 SEN14 <- Results %>%
   filter(year == 2014, chamber == "SEN")
-SEN14$perc_Dem[is.na(SEN14$perc_Dem)] <- .5
 
 SEN14map <-
   ggplot() +
@@ -278,7 +277,8 @@ SEN14map <-
   scale_fill_gradient2(low = muted("red"),
                        mid = "white", midpoint = .5,
                        high = muted("blue"),
-                       limits = c(0, 1)) +
+                       limits = c(0, 1),
+                       na.value = "grey") +
   labs(fill = "Proportion voting for a Democrat") +
   ggtitle("Voting outcomes in the 2014 California State Senate Election")
 SEN14map
