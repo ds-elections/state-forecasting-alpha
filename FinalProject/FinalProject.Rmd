@@ -54,6 +54,8 @@ LegResults6814 <- LegResults6814 %>%
 LegResults6814$chamber <- ifelse(LegResults6814$chamber == 8, "SEN", "HS")
 LegResults6814$party <- ifelse(LegResults6814$party == 100, "Dem", "Repub")
 LegResults6814 <- aggregate(x = LegResults6814["votes"], by = LegResults6814[c("year", "chamber", "District", "party", "incumbency")], sum)
+year <- LegResults6814$year
+as.numeric(year)
 
 # Coding dummy variables prez_party (1 if the president is a Democrat, -1 if the president is a Republican) and mid_penalty (1 if the president is a Democrat, -1 if the president is a Republican, 0 if the year includes a presidential election).
 
