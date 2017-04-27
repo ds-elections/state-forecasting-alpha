@@ -20,6 +20,7 @@ library(rgeos)
 library(gpclib)
 library(scales)
 library(shiny)
+library(lme4)
 ```
 
 ### Importing election results data
@@ -54,8 +55,6 @@ LegResults6814 <- LegResults6814 %>%
 LegResults6814$chamber <- ifelse(LegResults6814$chamber == 8, "SEN", "HS")
 LegResults6814$party <- ifelse(LegResults6814$party == 100, "Dem", "Repub")
 LegResults6814 <- aggregate(x = LegResults6814["votes"], by = LegResults6814[c("year", "chamber", "District", "party", "incumbency")], sum)
-year <- LegResults6814$year
-as.numeric(year)
 
 # Coding dummy variables prez_party (1 if the president is a Democrat, -1 if the president is a Republican) and mid_penalty (1 if the president is a Democrat, -1 if the president is a Republican, 0 if the year includes a presidential election).
 
@@ -119,6 +118,13 @@ LegResults16 <- aggregate(x = LegResults16[c("Dem", "Repub", "incumbent")],
 # I will also manually add a row for senatorial district 10 in 1968 with NAs because this data entry is missing.
 
 LegResults6814 <- rbind(LegResults6814, c(1968, "SEN", 10, NA, NA, NA, NA, NA))
+LegResults6814$year <- as.numeric(as.character(LegResults6814$year))
+LegResults6814$prez_party <- as.numeric(as.character(LegResults6814$prez_party))
+LegResults6814$District <- as.numeric(as.character(LegResults6814$District))
+LegResults6814$mid_penalty <- as.numeric(as.character(LegResults6814$mid_penalty))
+LegResults6814$incumbent <- as.numeric(as.character(LegResults6814$incumbent))
+LegResults6814$Dem <- as.numeric(as.character(LegResults6814$Dem))
+LegResults6814$Repub <- as.numeric(as.character(LegResults6814$Repub))
 ```
 
 Our dataset on voting totals for presidential, gubernatorial, and US Senate offices was mostly tidy, and any modifications to it were made in excel. We now only need to select the variables of interest, remove unnecessary rows (some rows contained sidenotes for the data), and rename the district column to match with our legislative results dataset.
@@ -172,16 +178,16 @@ Results <- full_join(LegResults, threeoffices, by = c("year", "chamber", "Distri
 
 Results <- left_join(Results, Econ_State, by = "year")
 Results <- left_join(Results, PrezApprove, by = "year")
-Results <- Results %>%
-  mutate(perc_Dem = Leg_Dem / (Leg_Dem + Leg_Repub),
-         perc_Repub = Leg_Repub / (Leg_Dem + Leg_Repub))
+Results <- Results
 
 # Adding another incumbent variable, this time to explicitly describe which party holds the incumbency. Also adding a categorical variable Leg_winner to represent which party captured the legislative seat.
 
 Results <- Results %>%
   rename(Leg_Dem = Dem, Leg_Repub = Repub) %>%
   mutate(incumb_party = ifelse(incumbent == 1, "Democrat", ifelse(incumbent == 0, "No incumbent", "Republican")),
-         Leg_winner = ifelse(Leg_Repub > Leg_Dem, "Republican", "Democract")) %>%
+         Leg_winner = ifelse(Leg_Repub > Leg_Dem, "Republican", "Democract"),
+         perc_Dem = Leg_Dem / (Leg_Dem + Leg_Repub),
+         perc_Repub = Leg_Repub / (Leg_Dem + Leg_Repub)) %>%
   arrange(year, chamber, District) %>%
   mutate(perc_changeLag = lag(perc_change, 120),
          ApproveLag = lag(Approve, 120),
