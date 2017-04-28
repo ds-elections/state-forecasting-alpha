@@ -1,0 +1,33 @@
+---
+title: "Untitled"
+author: "Jonathan Matz"
+date: "4/28/2017"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(lme4)
+library(arm)
+library(stats)
+library(datasets)
+data(mtcars)
+```
+
+## Attempt 1: Non Multi-Level Models
+
+```{r}
+Basic_OLS <- lm(mpg ~ wt + qsec + hp, mtcars)
+Basic_OLS
+```
+
+OK it worked.
+
+## Attempt 2: Maximum Liklihood Estimation
+
+```{r}
+Basic_ML <- glm(mpg ~ wt + qsec + hp, mtcars)
+Basic_ML
+```
+
