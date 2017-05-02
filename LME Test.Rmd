@@ -12,22 +12,95 @@ library(lme4)
 library(arm)
 library(stats)
 library(datasets)
-data(mtcars)
+data(cbpp)
+data(cake)
 ```
 
-## Attempt 1: Non Multi-Level Models
+### Model 1: Simple Non-Multilevel Models
 
 ```{r}
-Basic_OLS <- lm(mpg ~ wt + qsec + hp, mtcars)
-Basic_OLS
+Basic_OLS <- lm(incidence ~ size, cbpp)
+summary(Basic_OLS)
+display(Basic_OLS)
 ```
 
-OK it worked.
+This model is not very informative, but it serves as the baseline ordinary least squares linear model for comparison. It should not end up being the best or representative model and it will not.
 
-## Attempt 2: Maximum Liklihood Estimation
+### Model 2: Varying Intercept Based on Cake Recipe
 
 ```{r}
-Basic_ML <- glm(mpg ~ wt + qsec + hp, mtcars)
-Basic_ML
+Basic_ME <- lmer(angle ~ temp + (1|recipe), cake)
+summary(Basic_ME)
+display(Basic_ME)
+AIC(Basic_ME)
 ```
 
+In short, this basically gives each observation, in this case, a given cake, a unique intercept based on its respective recipe (and how that recipe might influence the outcome). This is done using the (x|y) command where x is a given random effect and y is all the possible levels or factors of that effect and subsequently a unique intercept will be assigned to each possible combination. Since, in this case, we are just interested in recipes as opposed, say, recipes based on how well they are replicated (recipe|replicate) or some similar combination, then x is simply set to equal 1. The parentheses are necessary to specify that we are dealing with random effects and want to give each observation its unique inctercept. The most successful model should have the lowest AIC value.
+
+### Model 3: Multiple Group Effects
+
+```{r}
+Basic_ME2 <- lmer(angle ~ temp + (1|recipe) + (1|replicate), cake)
+summary(Basic_ME2)
+display(Basic_ME2)
+AIC(Basic_ME2)
+```
+
+The model is not restricted to one group effect (i.e. more than one term can be used to identify the unique intercept).  In this case I used replicate (which is a factored variable that takes values between 1 and 15), because it was the only remaining variable, but also to see if it would improve the fitness of the model. The effect of including 'period' as one of the group effects that determined the unique intercept was fairly large as it only decreased the AIC from ~1884 to ~1680 between models Basic_ME and Basic_ME2. While the AIC is still very large overall, which makes sense given the type of variables we are dealing with (see visualization below), this shows that the (1|replicate) term does lead to a more fit model, if only slightly.
+
+```{r}
+Viz1 <- ggplot(cake, aes(temp, angle, color = recipe)) + geom_point()
+Viz1
+```
+
+### Model 4: Intercept Varying Among Recipe and (Replicate within Recipe)
+
+```{r}
+# (1|recipe/replicate) = (1|recipe) + (1|recipe:replicate)
+
+Basic_ME3 <- lmer(angle ~ temp + (1|recipe/replicate), cake)
+summary(Basic_ME3)
+display(Basic_ME3)
+AIC(Basic_ME3)
+```
+
+ME2 above was slightly different in that its two intercept terms were such that it contained an intercept varying among recipe and replicate. This model is very similar, but the second intercept term accounts for specific replicate values within each recipe. In other words, a unique intercept is being fit based on 2 factors: 1) specific recipes and 2) the replicate values within these recipes rather than just replicate values in general. This model is slightly less of a fit model than Basic_ME2 as it contains a higher AIC. The AIC model just measures how effective of a model Basic_ME3 is relative to other potential fixe effect models dealing with the data.  The AIC will probably never be 0 or close to it, but the goal is to keep it as low as possible.
+
+### Model 5: Varying Slope (and Random Intercept)
+
+```{r}
+ME <- lmer(angle ~ recipe + (recipe|replicate), cake)
+summary(ME)
+display(ME)
+AIC(ME)
+```
+
+This model deals with a random intercept and a slope that is correlated to that random intercept. The (recipe|replicate) command or x + (x|y) command tells R to assign a random intercept to each obeservation based on replicate values but this time it also tell it to assign a random slope for different replicate levels. Additionally, the slope of recipe will now vary according to the different replicate values/levels associated with it, so there is now some correlated between the recipe and replicate variables and therefore the slope of recipe will be correlated with the random intercept for replicate. In other words, the slope for x conditional on y is somewhat correlated with the random intercept for y. This model is fairly decent, as it has a somwhat low, but still relatively middling, AIC value. Thus, it seems thus far that Basic_ME2 is the most effective model for the given data.
+
+### Model 6: Uncorrelated Slope (and Random Intercept)
+
+```{r}
+ME2 <- lmer(angle ~ recipe + (recipe||replicate), cake)
+summary(ME2)
+display(ME2)
+AIC(ME2)
+```
+
+This command assigns random intercepts for each replicate level or factor level (like all the previously shown models) and like ME, it assigns a random slope to each level/value of both recipe and replicate, but the slope for recipe will not be correlated with any respective replicate values to which it applies. One odd thing to note is that correlation values are much closer to 1 for this model than they are for the model where there was supposed to be correlation between the slope and intercept. Additionally, there are minimal effects on the AIC value between this model and ME as the AIC increased from ~1741 to ~1743.
+
+### Miscellaneous:
+
+```{r}
+ME <- lmer(angle ~ temp + (recipe|replicate), cake)
+summary(ME)
+display(ME)
+AIC(ME)
+```
+
+The intercept form (g1|g2) was not on the webpage I checked, nor was it in the pdf Andrew gave us, but it seems to lead to a relatively effective model as the AIC is relatively low (1670).
+
+### Some Visualizations:
+
+### Main Takeaway:
+
+The best lme model will have the lowest AIC. As shown abov, there are numerous different models we can use, but the issue is that this will grow more complex with more variables at our hand (as opposed to 3 simple variables) and there does not seem to be an efficient way to find out from the get go which lme model will lead to the lowest AIC value or will serve as the most accurate predictor. This may take some toying around initially.
