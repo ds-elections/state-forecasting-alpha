@@ -10,8 +10,17 @@
 library(shiny)
 library(leaflet)
 
+bins <- c(0, .5, 1)
+pal <- colorBin(palette = c("red", "white", "blue"),
+                domain = SEN14$perc_Dem,
+                bins = bins)
+
 m <- leaflet(SENshape) %>%
-  addPolylines(lng = SENshape$long, lat = SENshape$lat)
+  addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
+              opacity = 1.0, fillOpacity = 0.5,
+              fillColor = ~pal(SEN14$perc_Dem),
+              highlightOptions = highlightOptions(color = "white", weight = 2,
+                                                  bringToFront = TRUE))
 m
 
 # Define UI for application that draws a map
