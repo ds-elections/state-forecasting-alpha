@@ -201,8 +201,8 @@ To visualiza our data, we would like to include a map of California senatorial a
 SENshape <- readShapePoly("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/CA_SEN_shapefile/cb_2016_06_sldu_500k.shp")
 HSshape <- readShapePoly("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/CA_HS_shapefile/cb_2016_06_sldl_500k.shp")
 
-SENshape <- fortify(SENshape, region = "NAME")
-HSshape <- fortify(HSshape, region = "NAME")
+SENshapefort <- fortify(SENshape, region = "NAME")
+HSshapefort <- fortify(HSshape, region = "NAME")
 ```
 
 ### Some visualizations
@@ -229,7 +229,7 @@ SEN14map <- ggplot() +
   geom_map(data = SEN14,
            aes(map_id = District, fill = perc_Dem),
            map = SENshape) +
-  expand_limits(x = SENshape$long, y = SENshape$lat) +
+  expand_limits(x = SENshapefort$long, y = SENshapefort$lat) +
   scale_fill_gradient2(low = muted("red"),
                        mid = "white", midpoint = .5,
                        high = muted("blue"),
