@@ -10,15 +10,24 @@
 library(shiny)
 library(leaflet)
 
+SEN14 <- SEN14 %>%
+  rename(NAME = District)
+
+SENmap <- readOGR(dsn = "032_StateLegForecast_CAcopy/CA_SEN_shapefile",
+                  layer = "cb_2016_06_sldu_500k")
+
+SENleaf <- merge(SENmap, SEN14, by="NAME")
+
+
 bins <- c(0, .5, 1)
 pal <- colorBin(palette = c("red", "white", "blue"),
-                domain = SEN14$perc_Dem,
+                domain = SENleaf$perc_Dem,
                 bins = bins)
 
-m <- leaflet(SENshape) %>%
+m <- leaflet(SENleaf) %>%
   addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
               opacity = 1.0, fillOpacity = 0.5,
-              fillColor = ~pal(SEN14$perc_Dem),
+              fillColor = ~pal(SENleaf$perc_Dem),
               highlightOptions = highlightOptions(color = "white", weight = 2,
                                                   bringToFront = TRUE))
 m
