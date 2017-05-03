@@ -181,7 +181,8 @@ Results <- Results %>%
          Leg_winner = ifelse(Leg_Repub > Leg_Dem, "Republican", "Democract"),
          perc_Dem = Leg_Dem / (Leg_Dem + Leg_Repub),
          perc_Repub = Leg_Repub / (Leg_Dem + Leg_Repub)) %>%
-  arrange(year, chamber, District) %>%
+  arrange(year, chamber, District)
+Resultsmodel <- Results %>%
   mutate(perc_changeLag = lag(perc_change, 120),
          ApproveLag = lag(Approve, 120),
          incumbentpartyLag = lag(incumbentparty, 120),
@@ -191,7 +192,7 @@ Results <- Results %>%
          perc_sen2_Dem = US_Sen2_Dem/(US_Sen2_Dem + US_Sen2_Repub),
          perc_gub_Dem = Gub_Dem/(Gub_Dem + Gub_Repub))
 
-Results[c("Leg_Dem",
+Resultsmodel[c("Leg_Dem",
           "Leg_Repub",
           "Prez_Dem",
           "Prez_Repub",
@@ -203,7 +204,7 @@ Results[c("Leg_Dem",
           "US_Sen_Dem",
           "US_Sen_Repub",
           "US_Sen2_Dem",
-          "US_Sen2_Repub")][is.na(Results[c("Leg_Dem",
+          "US_Sen2_Repub")][is.na(Resultsmodel[c("Leg_Dem",
                                       "Leg_Repub",
                                       "Prez_Dem",
                                       "Prez_Repub",
@@ -216,18 +217,18 @@ Results[c("Leg_Dem",
                                       "US_Sen_Repub",
                                       "US_Sen2_Dem",
                                       "US_Sen2_Repub")])] <- 0
-Results[c("perc_Dem",
+Resultsmodel[c("perc_Dem",
           "perc_Repub",
           "perc_prez_Dem",
           "perc_sen_Dem",
           "perc_sen2_Dem",
-          "perc_gub_Dem")][is.na(Results[c("perc_Dem",
+          "perc_gub_Dem")][is.na(Resultsmodel[c("perc_Dem",
                                            "perc_Repub",
                                            "perc_prez_Dem",
                                            "perc_sen_Dem",
                                            "perc_sen2_Dem",
                                            "perc_gub_Dem")])] <- .5
-Results["Leg_winner"][is.na(Results["Leg_winner"])] <- "No election"
+Resultsmodel["Leg_winner"][is.na(Resultsmodel["Leg_winner"])] <- "No election"
 ```
 
 ### Fully clean dataset
@@ -286,13 +287,13 @@ SEN14map
 ## Create a Mixed Effects Model
 
 ```{r, warning=FALSE, message=FALSE}
-m1 <- lmer(perc_Dem ~ incumbentparty + (Approve|prez_party), Results)
+m1 <- lmer(perc_Dem ~ incumbentparty + (Approve|prez_party), Resultsmodel)
 
 m3 <- lmer(perc_Dem ~
              DemLag + incumbentpartyLag +
              (1|year/District) +
              incumbentparty + (1 + incumbentparty|year),
-             Results)
+             Resultsmodel)
 AIC(m3)
 AIC(m1)
 ```

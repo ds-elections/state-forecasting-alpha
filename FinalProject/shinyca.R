@@ -19,10 +19,8 @@ SENmap <- readOGR(dsn = "032_StateLegForecast_CAcopy/CA_SEN_shapefile",
 SENleaf <- merge(SENmap, SEN14, by="NAME")
 
 
-bins <- c(0, .5, 1)
-pal <- colorBin(palette = c("red", "white", "blue"),
-                domain = SENleaf$perc_Dem,
-                bins = bins)
+pal <- colorNumeric(c("red", "white", "blue"), 0:1, na.color = "grey")
+
 
 m <- leaflet(SENleaf) %>%
   addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
