@@ -126,7 +126,7 @@ Our dataset on voting totals for presidential, gubernatorial, and US Senate offi
 threeoffices <- threeoffices %>%
   filter(Dummy1 == 1,
          year > 1972) %>%
-  select(year, chamber, dist, (17:24)) %>%
+  select(year, chamber, dist, (17:24), prez_party, mid_penalty) %>%
   rename(District = dist)
 ```
 
@@ -184,7 +184,50 @@ Results <- Results %>%
   arrange(year, chamber, District) %>%
   mutate(perc_changeLag = lag(perc_change, 120),
          ApproveLag = lag(Approve, 120),
-         incumbentpartyLag = lag(incumbentparty, 120))
+         incumbentpartyLag = lag(incumbentparty, 120),
+         DemLag = lag(perc_Dem, 120),
+         perc_prez_Dem = Prez_Dem/(Prez_Dem + Prez_Repub),
+         perc_sen_Dem = US_Sen_Dem/(US_Sen_Dem + US_Sen_Repub),
+         perc_sen2_Dem = US_Sen2_Dem/(US_Sen2_Dem + US_Sen2_Repub),
+         perc_gub_Dem = Gub_Dem/(Gub_Dem + Gub_Repub))
+
+Results[c("Leg_Dem",
+          "Leg_Repub",
+          "Prez_Dem",
+          "Prez_Repub",
+          "incumbency",
+          "incumbentparty",
+          "dummyparty",
+          "Gub_Dem",
+          "Gub_Repub",
+          "US_Sen_Dem",
+          "US_Sen_Repub",
+          "US_Sen2_Dem",
+          "US_Sen2_Repub")][is.na(Results[c("Leg_Dem",
+                                      "Leg_Repub",
+                                      "Prez_Dem",
+                                      "Prez_Repub",
+                                      "incumbency",
+                                      "incumbentparty",
+                                      "dummyparty",
+                                      "Gub_Dem",
+                                      "Gub_Repub",
+                                      "US_Sen_Dem",
+                                      "US_Sen_Repub",
+                                      "US_Sen2_Dem",
+                                      "US_Sen2_Repub")])] <- 0
+Results[c("perc_Dem",
+          "perc_Repub",
+          "perc_prez_Dem",
+          "perc_sen_Dem",
+          "perc_sen2_Dem",
+          "perc_gub_Dem")][is.na(Results[c("perc_Dem",
+                                           "perc_Repub",
+                                           "perc_prez_Dem",
+                                           "perc_sen_Dem",
+                                           "perc_sen2_Dem",
+                                           "perc_gub_Dem")])] <- .5
+Results["Leg_winner"][is.na(Results["Leg_winner"])] <- "No election"
 ```
 
 ### Fully clean dataset
@@ -243,6 +286,13 @@ SEN14map
 ## Create a Mixed Effects Model
 
 ```{r, warning=FALSE, message=FALSE}
-m1 <- lmer(perc_Dem ~ Approve*prez_party, Results)
-```
+m1 <- lmer(perc_Dem ~ incumbentparty + (Approve|prez_party), Results)
 
+m3 <- lmer(perc_Dem ~
+             DemLag + incumbentpartyLag +
+             (1|year/District) +
+             incumbentparty + (1 + incumbentparty|year),
+             Results)
+AIC(m3)
+AIC(m1)
+```
