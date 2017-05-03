@@ -52,13 +52,19 @@ ui <- fluidPage(
   # Application title
   titlePanel("California Legislative Elections"),
   
+  
+  
   # Sidebar with a slider input for year of election 
   sidebarLayout(
     sidebarPanel(
       sliderInput(inputId = "year",
-                  label = "Election year",
-                  min = 1966,
-                  max = 2016)
+                  label = "Choose an election",
+                  min = 1974,
+                  max = 2016),
+      checkboxGroupInput(inputId = "chamber",
+                         label = "Choose a house",
+                         choices = c("Senate" = "SEN",
+                                     "Assembly" = "HS"))
     ),
     
     # Show a plot of the generated distribution
@@ -70,7 +76,9 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-  
+  filteredResults <- reactive({
+    Results[Results$year = input$range[2]]
+  })
   output$CAmap <- renderLeaflet({
     # generate bins based on input$bins from ui.R
     x    <- faithful[, 2] 
@@ -80,6 +88,9 @@ server <- function(input, output) {
     hist(x, breaks = bins, col = 'darkgray', border = 'white')
   })
 }
+  observe({
+    leafletProxy("CAmap", data = filteredResults()) 
+})
 
 # Run the application 
 shinyApp(ui = ui, server = server)
