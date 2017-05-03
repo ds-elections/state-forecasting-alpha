@@ -10,25 +10,41 @@
 library(shiny)
 library(leaflet)
 
-SEN14 <- SEN14 %>%
+SENdata <- Results %>%
+  filter(chamber == "SEN") %>%
+  rename(NAME = District)
+
+HSdata <- Results %>%
+  filter(chamber == "HS") %>%
   rename(NAME = District)
 
 SENmap <- readOGR(dsn = "032_StateLegForecast_CAcopy/CA_SEN_shapefile",
                   layer = "cb_2016_06_sldu_500k")
+HSmap <- readOGR(dsn = "032_StateLegForecast_CAcopy/CA_HS_shapefile",
+                 layer = "cb_2016_06_sldl_500k")
 
-SENleaf <- merge(SENmap, SEN14, by="NAME")
+SENleaf <- merge(SENmap, SENdata, by = "NAME")
+HSleaf <- merge(HSmap, HSdata, by = "NAME")
 
 
 pal <- colorNumeric(c("red", "white", "blue"), 0:1, na.color = "grey")
 
 
-m <- leaflet(SENleaf) %>%
+SENshinymap <- leaflet(SENleaf) %>%
   addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
               opacity = 1.0, fillOpacity = 0.5,
               fillColor = ~pal(SENleaf$perc_Dem),
               highlightOptions = highlightOptions(color = "white", weight = 2,
                                                   bringToFront = TRUE))
-m
+SENshinymap
+
+HSmap <- leaflet(HSleaf) %>%
+  addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
+              opacity = 1.0, fillOpacity = 0.5,
+              fillColor = ~pal(HSleaf$perc_Dem),
+              highlightOptions = highlightOptions(color = "white", weight = 2,
+                                                  bringToFront = TRUE))
+HSshinymap
 
 # Define UI for application that draws a map
 ui <- fluidPage(
