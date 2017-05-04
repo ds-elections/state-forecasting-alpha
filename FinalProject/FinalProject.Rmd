@@ -142,7 +142,7 @@ PrezApprove <- PrezApprove %>%
   select(Year, Approve) %>%
   rename(year = Year)
 
-# For percent change in real income, we are using Dr. Klarner's weighted percent change formula. This includes attributing the highest weight to the quarter that just passed (January through March) and the lowest weight to the most outdated quarter (April through June of the previous year). The reason we are doing this is because we expect that voters focus more on how the economy has changed now, and less 10 months ago. First, we need to measure percent change for each quarter. Our dataset only gives raw income values, so the first mutation creates percent changes for each quarter, and our second mutation creates our weighted annual percent change.
+# For percent change in real income, we are using Dr. Klarner's weighted percent change formula. This includes attributing the highest weight to the most recent quarter. In our case, since we will test this model days before the election, the second quarter (July through September) will have the largest weight. The reason we are doing this is because we expect that voters focus more on how the economy has changed now, and less 10 months ago. First, we need to measure percent change for each quarter. Our dataset only gives raw income values, so the first mutation creates percent changes for each quarter, and our second mutation creates our weighted annual percent change.
 
 Econ_State <- Econ_State %>%
   spread(key = Quarter, value = Income) %>%
@@ -150,10 +150,10 @@ Econ_State <- Econ_State %>%
          II_IIIpercent = (lag(III)-lag(II))/lag(II),
          III_IVpercent = (lag(IV)-lag(III))/lag(III),
          IV_Ipercent = (I - lag(IV))/lag(IV)) %>%
-  mutate(perc_change = (4*I_IIpercent +
-                        3*IV_Ipercent +
-                        2*III_IVpercent +
-                        IV_Ipercent)/10) %>%
+  mutate(perc_change = (3*I_IIpercent +
+                        4*II_IIIpercent +
+                        III_IVpercent +
+                        2*IV_Ipercent)/10) %>%
   rename(year = Year)
 ```
 
@@ -268,7 +268,7 @@ Resultsmodel <- Results %>%
   mutate(perc_changeLag = lag(perc_change, 120),
          ApproveLag = lag(Approve, 120),
          incumbentpartyLag = lag(incumbentparty, 120),
-         DemLag = lag(perc_Dem, 120),
+         perc_DemLag = lag(perc_Dem, 120),
          perc_prez_DemLag = lag(perc_prez_Dem, 120),
          perc_gub_DemLag = lag(perc_gub_Dem, 120),
          perc_sen_DemLag = lag(perc_sen_Dem, 120))
@@ -322,7 +322,7 @@ Resultsmodel["Leg_winner"][is.na(Resultsmodel["Leg_winner"])] <- "No election"
 m1 <- lmer(perc_Dem ~ incumbentparty + (Approve|prez_party), Resultsmodel)
 
 m3 <- lmer(perc_Dem ~
-             DemLag + incumbentpartyLag +
+             perc_DemLag + incumbentpartyLag +
              (1|year/District) +
              incumbentparty + (1 + incumbentparty|year),
              Resultsmodel)
@@ -332,7 +332,7 @@ AIC(m1)
 
 # Added in a random intercept term which crosses percent votes for a senator and presidential approval rating 
 m4 <- lmer(perc_Dem ~
-             DemLag + incumbentpartyLag +
+             perc_DemLag + incumbentpartyLag +
              (1|year/District) +
              incumbentparty + 
              (1 + incumbentparty|year) +
@@ -341,7 +341,7 @@ m4 <- lmer(perc_Dem ~
 AIC(m4)
 
 m5 <- lmer(perc_Dem ~
-             DemLag + incumbentpartyLag +
+             perc_DemLag + incumbentpartyLag +
              (1|year/District) +
              incumbentparty + 
              (1 + incumbentparty|year) +
@@ -357,7 +357,7 @@ AIC(m5)
 # last election's results to predict the next one.
 
 m6 <- lmer(perc_Dem ~
-             DemLag + incumbentpartyLag +
+             perc_DemLag + incumbentpartyLag +
              (1|year/District) +
              incumbentparty + 
              (1 + incumbentparty|year) +
