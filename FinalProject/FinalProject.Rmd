@@ -306,4 +306,15 @@ m3 <- lmer(perc_Dem ~
              Resultsmodel)
 AIC(m3)
 AIC(m1)
+
+
+# Added in a random intercept term which crosses percent votes for a senator and presidential approval rating 
+m4 <- lmer(perc_Dem ~
+             DemLag + incumbentpartyLag +
+             (1|year/District) +
+             incumbentparty + 
+             (1 + incumbentparty|year) +
+             (1|perc_sen_Dem/Approve),
+             Resultsmodel)
+AIC(m4)
 ```
