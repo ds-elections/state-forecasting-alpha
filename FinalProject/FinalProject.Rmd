@@ -218,6 +218,19 @@ plot1 <- ggplot(Results, aes(y = Leg_Dem, x = Leg_Repub)) +
   labs(col = "Incumbency status") +
   ggtitle("The incumbency effect")
 plot1
+
+plot2 <- ggplot(Results, aes(y = perc_Dem, x = year)) +
+  geom_smooth(mapping = aes(col = incumb_party_name)) +
+  scale_colour_manual(values = c("blue", "grey", "red")) +
+  geom_abline(intercept = .5, slope = 0) +
+  ggtitle("The incumbency effect over time") +
+  xlab("Election") +
+  ylab("Percent of votes for Democrat") +
+  labs(col = "Incumbency status")
+plot2
+
+# Plot 2 shows that the incumbency advantage has diminished in the past two
+# decades. Thus, in our model, we should vary the incumbency variable by time.
 ```
 
 ```{r}
@@ -255,7 +268,10 @@ Resultsmodel <- Results %>%
   mutate(perc_changeLag = lag(perc_change, 120),
          ApproveLag = lag(Approve, 120),
          incumbentpartyLag = lag(incumbentparty, 120),
-         DemLag = lag(perc_Dem, 120))
+         DemLag = lag(perc_Dem, 120),
+         perc_prez_DemLag = lag(perc_prez_Dem, 120),
+         perc_gub_DemLag = lag(perc_gub_Dem, 120),
+         perc_sen_DemLag = lag(perc_sen_Dem, 120))
 
 Resultsmodel[c("Leg_Dem",
           "Leg_Repub",
@@ -287,12 +303,18 @@ Resultsmodel[c("perc_Dem",
           "perc_prez_Dem",
           "perc_sen_Dem",
           "perc_sen2_Dem",
-          "perc_gub_Dem")][is.na(Resultsmodel[c("perc_Dem",
+          "perc_gub_Dem",
+          "perc_prez_DemLag",
+          "perc_gub_DemLag",
+          "perc_sen_DemLag")][is.na(Resultsmodel[c("perc_Dem",
                                            "perc_Repub",
                                            "perc_prez_Dem",
                                            "perc_sen_Dem",
                                            "perc_sen2_Dem",
-                                           "perc_gub_Dem")])] <- .5
+                                           "perc_gub_Dem",
+                                           "perc_prez_DemLag",
+                                           "perc_gub_DemLag",
+                                           "perc_sen_DemLag")])] <- .5
 Resultsmodel["Leg_winner"][is.na(Resultsmodel["Leg_winner"])] <- "No election"
 ```
 
@@ -330,19 +352,27 @@ m5 <- lmer(perc_Dem ~
              Resultsmodel)
 AIC(m5)
 
-# Added perc_changeLag as fixed effect
+# Added perc_changeLag as fixed effect, and changed three offices covariates
+# to lagged variables. This rose the AIC but is necessary because we are using
+# last election's results to predict the next one.
 
 m6 <- lmer(perc_Dem ~
              DemLag + incumbentpartyLag +
              (1|year/District) +
              incumbentparty + 
              (1 + incumbentparty|year) +
-             (1|perc_sen_Dem/Approve) +
+             (1|perc_sen_DemLag/Approve) +
              perc_change +
              perc_changeLag + 
-             (1|perc_prez_Dem) + 
-             (1|perc_gub_Dem),
+             (1|perc_prez_DemLag) + 
+             (1|perc_gub_DemLag),
              Resultsmodel)
 AIC(m6)
+```
+
+### Testing the model
+
+```{r}
 
 ```
+
