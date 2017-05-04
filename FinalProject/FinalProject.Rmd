@@ -317,4 +317,16 @@ m4 <- lmer(perc_Dem ~
              (1|perc_sen_Dem/Approve),
              Resultsmodel)
 AIC(m4)
+
+m5 <- lmer(perc_Dem ~
+             DemLag + incumbentpartyLag +
+             (1|year/District) +
+             incumbentparty + 
+             (1 + incumbentparty|year) +
+             (1|perc_sen_Dem/Approve) +
+             perc_change +
+             (1|perc_prez_Dem) + 
+             (1|perc_gub_Dem),
+             Resultsmodel)
+AIC(m5)
 ```
