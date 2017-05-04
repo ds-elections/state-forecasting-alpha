@@ -329,4 +329,20 @@ m5 <- lmer(perc_Dem ~
              (1|perc_gub_Dem),
              Resultsmodel)
 AIC(m5)
+
+# Added perc_changeLag as fixed effect
+
+m6 <- lmer(perc_Dem ~
+             DemLag + incumbentpartyLag +
+             (1|year/District) +
+             incumbentparty + 
+             (1 + incumbentparty|year) +
+             (1|perc_sen_Dem/Approve) +
+             perc_change +
+             perc_changeLag + 
+             (1|perc_prez_Dem) + 
+             (1|perc_gub_Dem),
+             Resultsmodel)
+AIC(m6)
+
 ```
