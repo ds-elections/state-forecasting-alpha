@@ -361,7 +361,7 @@ m6 <- lmer(perc_Dem ~
              (1|year/District) +
              incumbentparty + 
              (1 + incumbentparty|year) +
-             (1|perc_sen_DemLag/Approve) +
+             (1|perc_sen_DemLag) +
              perc_change +
              perc_changeLag + 
              (1|perc_prez_DemLag) + 
@@ -373,6 +373,24 @@ AIC(m6)
 ### Testing the model
 
 ```{r}
+# Creating two datasets; one to build the model, and one to test the model.
+set.seed(1)
+train_indeces <- sample(1:nrow(Resultsmodel), size = 1320, replace = FALSE)
+default_train <- slice(Resultsmodel, train_indeces)
+default_test <- slice(Resultsmodel, -train_indeces)
+```
 
+```{r}
+y6 <- predict(m6, newdata = default_test, type = "response", allow.new.levels = TRUE)
+default_test <- default_test %>%
+  mutate(p_hat6 = y6, pred_default6 = p_hat6 >.5)
+confusion_mat6 <- default_test %>%
+  group_by(perc_Dem, pred_default6) %>%
+  tally()
+false_pos6 <- confusion_mat6[2, 3]
+false_neg6 <- confusion_mat6[4, 3]
+total_obs6 <- nrow(default_test)
+mcr6 <- (false_pos6 + false_neg6)/total_obs6
+mcr6
 ```
 
