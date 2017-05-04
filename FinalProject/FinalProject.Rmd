@@ -173,6 +173,12 @@ Results <- full_join(LegResults, threeoffices, by = c("year", "chamber", "Distri
 Results <- left_join(Results, Econ_State, by = "year")
 Results <- left_join(Results, PrezApprove, by = "year")
 
+# Importing 2018 empty data and joining it to include lagged effects.
+
+df2018 <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/2018template.xlsx")
+
+Results <- full_join(Results, df2018, by = c("year", "chamber", "District"))
+
 # Adding another incumbent variable, this time to explicitly describe which party holds the incumbency. Also adding a categorical variable Leg_winner to represent which party captured the legislative seat.
 
 Results <- Results %>%
@@ -186,6 +192,8 @@ Results <- Results %>%
          perc_sen_Dem = US_Sen_Dem/(US_Sen_Dem + US_Sen_Repub),
          perc_sen2_Dem = US_Sen2_Dem/(US_Sen2_Dem + US_Sen2_Repub),
          perc_gub_Dem = Gub_Dem/(Gub_Dem + Gub_Repub))
+
+
 ```
 
 ### Fully clean dataset
