@@ -366,23 +366,26 @@ m5 <- lmer(perc_Dem ~
              (1|perc_gub_Dem),
              Resultsmodel)
 AIC(m5)
+```
 
+```{r}
 # Added perc_changeLag as fixed effect, and changed three offices covariates
 # to lagged variables. This rose the AIC but is necessary because we are using
 # last election's results to predict the next one.
 
 m6 <- lmer(perc_Dem ~
-             perc_DemLag + incumbentpartyLag +
+             perc_DemLag + incumbentpartyLag + mid_penalty +
              (1|year/District) +
              incumbentparty + 
              (1 + incumbentparty|year) +
-             (1|perc_sen_DemLag) +
              perc_change +
-             perc_changeLag + 
-             (1|perc_prez_DemLag) + 
+             perc_changeLag +
+             (1|perc_sen_DemLag) +
+             (1|perc_prez_DemLag) +
              (1|perc_gub_DemLag),
              Resultsmodel)
 AIC(m6)
+summary(m6)
 ```
 
 ### Testing the model
@@ -390,7 +393,7 @@ AIC(m6)
 ```{r}
 # Creating two datasets; one to build the model, and one to test the model.
 set.seed(1)
-train_indeces <- sample(1:nrow(Resultsmodel), size = 1320, replace = FALSE)
+train_indeces <- sample(1:nrow(Resultsmodel), size = 1380, replace = FALSE)
 default_train <- slice(Resultsmodel, train_indeces)
 default_test <- slice(Resultsmodel, -train_indeces)
 ```
