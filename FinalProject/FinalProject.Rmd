@@ -177,7 +177,14 @@ Results <- left_join(Results, PrezApprove, by = "year")
 
 df2018 <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/2018template.xlsx")
 
-Results <- full_join(Results, df2018, by = c("year", "chamber", "District"))
+df2018 <- df2018 %>%
+  mutate(prez_party = -1, mid_penalty = 1)
+
+Results <- full_join(Results, df2018, by = c("year",
+                                             "chamber",
+                                             "District",
+                                             "prez_party",
+                                             "mid_penalty"))
 
 # Adding another incumbent variable, this time to explicitly describe which party holds the incumbency. Also adding a categorical variable Leg_winner to represent which party captured the legislative seat.
 
