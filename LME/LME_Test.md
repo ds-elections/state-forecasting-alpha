@@ -1,6 +1,6 @@
 LME Sample Test
 ================
-Jonathan Matz
+EJ Arce and Jonathan Matz
 4/28/2017
 
 ### Model 1: Simple Non-Multilevel Models
@@ -99,7 +99,7 @@ AIC(Basic_ME)
 
     ## [1] 1884.294
 
-In short, this basically gives each observation, in this case, a given cake, a unique intercept based on its respective recipe (and how that recipe might influence the outcome). This is done using the (x|y) command where x is a given random effect and y is all the possible levels or factors of that effect and subsequently a unique intercept will be assigned to each possible combination. Since, in this case, we are just interested in recipes as opposed, say, recipes based on how well they are replicated (recipe|replicate) or some similar combination, then x is simply set to equal 1. The parentheses are necessary to specify that we are dealing with random effects and want to give each observation its unique inctercept. The most successful model should have the lowest AIC value.
+In short, this basically gives each observation, in this case, a given cake, a unique intercept based on its respective recipe (and how that recipe might influence the outcome). This is done using the (x|y) command where x is a given random effect and y is all the possible levels or factors of that effect and subsequently a unique intercept will be assigned to each possible combination. Since, in this case, we are just interested in recipes as opposed to, say, recipes based on how well they are replicated (recipe|replicate) or some similar combination, then x is simply set to equal 1. The parentheses are necessary to specify that we are dealing with random effects and want to give each observation its unique inctercept. The most successful model should have the lowest AIC value.
 
 ### Model 3: Multiple Group Effects
 
@@ -229,7 +229,7 @@ AIC(Basic_ME3)
 
     ## [1] 1711.298
 
-ME2 above was slightly different in that its two intercept terms were such that it contained an intercept varying among recipe and replicate. This model is very similar, but the second intercept term accounts for specific replicate values within each recipe. In other words, a unique intercept is being fit based on 2 factors: 1) specific recipes and 2) the replicate values within these recipes rather than just replicate values in general. This model is slightly less of a fit model than Basic\_ME2 as it contains a higher AIC. The AIC model just measures how effective of a model Basic\_ME3 is relative to other potential fixe effect models dealing with the data. The AIC will probably never be 0 or close to it, but the goal is to keep it as low as possible.
+ME2 above was slightly different in that its two intercept terms were such that it contained an intercept varying among recipe and replicate. This model is very similar, but the second intercept term accounts for specific replicate values within each recipe. In other words, a unique intercept is being fit based on 2 factors: 1) specific recipes and 2) the replicate values within these recipes rather than just replicate values in general. This model is slightly less of a fit model than Basic\_ME2 as it contains a higher AIC. The AIC model just measures how effective of a model Basic\_ME3 is relative to other potential fixed effect models dealing with the data. The AIC will probably never be 0 or close to it, but the goal is to keep it as low as possible.
 
 ### Model 5: Varying Slope (and Random Intercept)
 
@@ -294,7 +294,7 @@ AIC(ME)
 
     ## [1] 1741.003
 
-This model deals with a random intercept and a slope that is correlated to that random intercept. The (recipe|replicate) command or x + (x|y) command tells R to assign a random intercept to each obeservation based on replicate values but this time it also tell it to assign a random slope for different replicate levels. Additionally, the slope of recipe will now vary according to the different replicate values/levels associated with it, so there is now some correlated between the recipe and replicate variables and therefore the slope of recipe will be correlated with the random intercept for replicate. In other words, the slope for x conditional on y is somewhat correlated with the random intercept for y. This model is fairly decent, as it has a somwhat low, but still relatively middling, AIC value. Thus, it seems thus far that Basic\_ME2 is the most effective model for the given data.
+This model deals with a random intercept and a slope that is correlated to that random intercept. The (recipe|replicate) command or x + (x|y) command tells R to assign a random intercept to each obeservation based on replicate values but this time it assigns a random slope for different replicate levels. Additionally, the slope of recipe will now vary according to the different replicate values/levels associated with it, so there is now some correlation between the recipe and replicate variables and therefore the slope of recipe will be correlated with the random intercept for replicate. In other words, the slope for x conditional on y is somewhat correlated with the random intercept for y. This model is fairly decent, as it has a somwhat low, but still relatively middling, AIC value. Thus, it seems thus far that Basic\_ME2 is the most effective model for the given data.
 
 ### Model 6: Uncorrelated Slope (and Random Intercept)
 
@@ -430,4 +430,4 @@ The intercept form (g1|g2) was not on the webpage I checked, nor was it in the p
 
 ### Main Takeaway:
 
-The best lme model will have the lowest AIC. As shown abov, there are numerous different models we can use, but the issue is that this will grow more complex with more variables at our hand (as opposed to 3 simple variables) and there does not seem to be an efficient way to find out from the get go which lme model will lead to the lowest AIC value or will serve as the most accurate predictor. This may take some toying around initially.
+The best lme model will have the lowest AIC. As shown above, there are numerous different models we can use, but the issue is that this will grow more complex with more variables at our hand (as opposed to 3 simple variables) and there does not seem to be an efficient way to find out from the get go which lme model will lead to the lowest AIC value or will serve as the most accurate predictor. This may take some toying around initially.
