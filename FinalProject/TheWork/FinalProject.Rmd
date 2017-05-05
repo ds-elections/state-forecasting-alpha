@@ -290,6 +290,15 @@ plot3
 # variables, which include observations for each variable from the previous
 # election.
 
+Results <- Results %>%
+  mutate(perc_changeLag = lag(perc_change, 120),
+         ApproveLag = lag(Approve, 120),
+         incumbentpartyLag = lag(incumbentparty, 120),
+         perc_DemLag = lag(perc_Dem, 120),
+         perc_prez_DemLag = lag(perc_prez_Dem, 120),
+         perc_gub_DemLag = lag(perc_gub_Dem, 120),
+         perc_sen_DemLag = lag(perc_sen_Dem, 120))
+
 Resultsmodel <- Results %>%
   mutate(perc_changeLag = lag(perc_change, 120),
          ApproveLag = lag(Approve, 120),
@@ -352,31 +361,16 @@ m3 <- lmer(perc_Dem ~
              (1|year/District) +
              incumbentparty + (1 + incumbentparty|year),
              Resultsmodel)
-AIC(m3)
-AIC(m1)
-
 
 # Added in a random intercept term which crosses percent votes for a senator and presidential approval rating 
 m4 <- lmer(perc_Dem ~
-             perc_DemLag + incumbentpartyLag +
+             perc_DemLag + incumbentpartyLag + incumbentparty + 
              (1|year/District) +
-             incumbentparty + 
              (1 + incumbentparty|year) +
              (1|perc_sen_Dem/Approve),
              Resultsmodel)
 AIC(m4)
-
-m5 <- lmer(perc_Dem ~
-             perc_DemLag + incumbentpartyLag +
-             (1|year/District) +
-             incumbentparty + 
-             (1 + incumbentparty|year) +
-             (1|perc_sen_Dem/Approve) +
-             perc_change +
-             (1|perc_prez_Dem) + 
-             (1|perc_gub_Dem),
-             Resultsmodel)
-AIC(m5)
+summary(m4)
 ```
 
 ```{r}
@@ -385,16 +379,18 @@ AIC(m5)
 # last election's results to predict the next one.
 
 m6 <- lmer(perc_Dem ~
-             perc_DemLag + incumbentpartyLag + mid_penalty +
-             (1|year/District) +
-             incumbentparty + 
-             (1 + incumbentparty|year) +
+             perc_DemLag +
+             incumbentpartyLag +
+             mid_penalty*prez_party +
+             incumbentparty +
+             perc_sen_DemLag +
+             perc_prez_DemLag +
+             perc_gub_DemLag +
              perc_change +
              perc_changeLag +
-             (1|perc_sen_DemLag) +
-             (1|perc_prez_DemLag) +
-             (1|perc_gub_DemLag),
-             Resultsmodel)
+             Approve*prez_party +
+             (1|year/District),
+           data = Resultsmodel)
 AIC(m6)
 summary(m6)
 ```
