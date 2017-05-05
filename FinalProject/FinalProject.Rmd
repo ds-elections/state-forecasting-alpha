@@ -135,7 +135,7 @@ Now both datasets are clean, and we will join them soon. However, first we need 
 ### Importing and cleaning presidential approval and economy strength data
 
 ```{r}
-Econ_State <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/econ-strength.xls")
+Econ_State2 <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/econ-strength.xls")
 PrezApprove <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/Gallup_Prez_Approv_1966to2016.xlsx")
 
 PrezApprove <- PrezApprove %>%
@@ -144,7 +144,7 @@ PrezApprove <- PrezApprove %>%
 
 # For percent change in real income, we are using Dr. Klarner's weighted percent change formula. This includes attributing the highest weight to the most recent quarter. In our case, since we will test this model days before the election, the second quarter (July through September) will have the largest weight. The reason we are doing this is because we expect that voters focus more on how the economy has changed now, and less 10 months ago. First, we need to measure percent change for each quarter. Our dataset only gives raw income values, so the first mutation creates percent changes for each quarter, and our second mutation creates our weighted annual percent change.
 
-Econ_State <- Econ_State %>%
+Econ_State <- Econ_State2 %>%
   spread(key = Quarter, value = Income) %>%
   mutate(I_IIpercent = (II-I)/I,
          II_IIIpercent = (lag(III)-lag(II))/lag(II),
@@ -268,6 +268,17 @@ SEN14map <- ggplot() +
   ggtitle("Voting outcomes in the 2014 California State Senate Election")
 SEN14map
 ```
+
+```{r}
+# Visualizing the relationship between econ-strength*prez_party and perc_Dem
+
+plot3 <- ggplot(Results, aes(y = perc_Dem, x = perc_change)) +
+  geom_smooth() +
+  facet_grid(. ~ prez_party)
+plot3
+```
+
+
 
 ## Create a Mixed Effects Model
 

@@ -1,0 +1,97 @@
+---
+title: "Deliverables"
+author: "EJ Arce"
+date: "5/4/2017"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set()
+library("RCurl")
+library("dplyr")
+library("ggplot2")
+library("tidyr")
+```
+
+
+## Forecasting California legislative election results
+
+  Forecasting elections is critical to the campaign strategies of candidates running for office. For example, a US presidential candidate needs 270 electoral votes to win an election, so they must efficiently allocate campaign resources to ensure victories in as many states as possible. Thus, it is important to know in which states the race is tight so they can focus campaign efforts on those states, while ignoring states that do not include tight races. Considering that much of the forecasting field has focused on US elections, our project focuses on forecasting election results for the California state legislature.
+
+  Our forecasting goal involves building a model that uses different covariates to predict the probability that a given California district will elect a democratic official in a two-party system. Such covariates include presidential approval, strength of the economy, the incumbency status of the seat up for election, and others. To do achieve such a model involves obtaining (messy) data from various sources. Although you will not be asked to build and test a model (certainly forecasting elections involve higher level modelling). The following exercises will help you understand the process of model building, starting from importing and cleaning messy datasets. 
+  
+* How much does incumbency affect election results?
+    + Do incumbents generally recapture their seat?
+* Do districts usually vote according to the same party for which they voted previously?
+* Is voting behavior for national offices (such as offices of the president, governor, and US senators) a good predictor for voting behavior at the state legislative level?
+
+The exercises below will help answer these questions. To complete the exercises, you will need to use the RCurl, dplyr, tidyr, and ggplot2.
+
+## Exercises
+
+### Exericse 1
+
+Import the data using the following code
+
+```{r, echo = TRUE}
+econ <-
+  read.csv(text = getURL("https://raw.githubusercontent.com/ds-elections/state-forecasting-alpha/master/CleanDeliverableData/econ_state.csv"), header = TRUE)
+leg_results <-
+  read.csv(text = getURL("https://raw.githubusercontent.com/ds-elections/state-forecasting-alpha/master/CleanDeliverableData/leg_results.csv"), header = TRUE)
+us_results <-
+  read.csv(text = getURL("https://raw.githubusercontent.com/ds-elections/state-forecasting-alpha/master/CleanDeliverableData/us_results.csv"), header = TRUE)
+```
+
+The leg_results and us_results datasets are fully clean. Each observation shows voting totals and covariate data for a single chamber district. The econ dataset shows the national average real personal income after each quarter since 1965.
+
+* Merge leg_results and us_results together.
+* Tidy the econ dataset so that each observation shows quarterly changes in a year. Then calculate for a weighted change in income so that the highest weight is attributed to the most recent quarterly change, and the lowest to the least recent quarterly change.
+    + (Hint: Elections are in November, so the most recent quarterly change occured from       March through June)
+* Merge the econ dataset with the merged results dataset.
+
+```{r, echo = FALSE}
+Results <- full_join(leg_results, us_results, by = c("year", "chamber", "District"))
+
+econ <- econ %>%
+  spread(key = Quarter, value = Income) %>%
+  mutate(I_IIpercent = (II-I)/I,
+         II_IIIpercent = (lag(III)-lag(II))/lag(II),
+         III_IVpercent = (lag(IV)-lag(III))/lag(III),
+         IV_Ipercent = (I - lag(IV))/lag(IV)) %>%
+  mutate(perc_change = (3*I_IIpercent +
+                        4*II_IIIpercent +
+                        III_IVpercent +
+                        2*IV_Ipercent)/10) %>%
+  rename(year = Year)
+
+Results <- left_join(Results, econ, by = "year")
+
+Results <- Results %>%
+  rename(Leg_Dem = Dem, Leg_Repub = Repub) %>%
+  mutate(incumb_party_name = ifelse(incumbentparty == 1, "Democrat", ifelse(incumbentparty == 0, "No incumbent", "Republican")),
+         Leg_winner = ifelse(Leg_Repub > Leg_Dem, "Republican", "Democract"),
+         perc_Dem = Leg_Dem / (Leg_Dem + Leg_Repub),
+         perc_Repub = Leg_Repub / (Leg_Dem + Leg_Repub)) %>%
+  arrange(year, chamber, District) %>%
+  mutate(perc_prez_Dem = Prez_Dem/(Prez_Dem + Prez_Repub),
+         perc_sen_Dem = US_Sen_Dem/(US_Sen_Dem + US_Sen_Repub),
+         perc_sen2_Dem = US_Sen2_Dem/(US_Sen2_Dem + US_Sen2_Repub),
+         perc_gub_Dem = Gub_Dem/(Gub_Dem + Gub_Repub))
+```
+
+### Exercise 2
+
+Reproduce the plot below
+
+```{r, echo = FALSE}
+plot1 <- ggplot(Results, aes(y = Leg_Dem, x = Leg_Repub)) +
+  geom_point(mapping = aes(col = incumb_party_name)) +
+  scale_colour_manual(values = c("blue", "grey", "red")) +
+  geom_abline(intercept = 0, slope = 1) +
+  ylab("Vote count for the Democratic Candidate") +
+  xlab("Vote count for the Republican Candidate") +
+  labs(col = "Incumbency status") +
+  ggtitle("The incumbency effect")
+plot1
+```
+
