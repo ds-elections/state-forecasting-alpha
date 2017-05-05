@@ -402,7 +402,7 @@ summary(m6)
 
 ```{r}
 # Creating two datasets; one to build the model, and one to test the model.
-set.seed(1)
+set.seed(23)
 train_indeces <- sample(1:nrow(Resultsmodel), size = 1380, replace = FALSE)
 default_train <- slice(Resultsmodel, train_indeces)
 default_test <- slice(Resultsmodel, -train_indeces)
