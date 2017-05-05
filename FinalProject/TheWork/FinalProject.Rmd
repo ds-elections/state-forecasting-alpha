@@ -354,7 +354,8 @@ Resultsmodel["Leg_winner"][is.na(Resultsmodel["Leg_winner"])] <- "No election"
 
 Resultsmodel <- Resultsmodel %>%
   mutate(mid_penalty = prez_party*mid_penalty,
-         Approve = prez_party*Approve)
+         Approve = prez_party*Approve) %>%
+  mutate(chamdist = rep(1:120, times = 23))
 ```
 
 ```{r, warning=FALSE, message=FALSE}
@@ -383,8 +384,7 @@ summary(m4)
 # last election's results to predict the next one.
 
 m6 <- lmer(perc_Dem ~
-             chamber +
-             perc_DemLag + (1 + perc_DemLag|District) +
+             perc_DemLag + (1 + perc_DemLag|chamdist) +
              perc_prez_DemLag +
              perc_gub_DemLag +
              perc_sen_DemLag +
