@@ -6,7 +6,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, include = FALSE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(foreign)
 library(dplyr)
 library(tidyverse)
@@ -257,7 +257,7 @@ SEN14 <- Results %>%
 SEN14map <- ggplot() +
   geom_map(data = SEN14,
            aes(map_id = District, fill = perc_Dem),
-           map = SENshape) +
+           map = SENshapefort) +
   expand_limits(x = SENshapefort$long, y = SENshapefort$lat) +
   scale_fill_gradient2(low = muted("red"),
                        mid = "white", midpoint = .5,

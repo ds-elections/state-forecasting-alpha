@@ -37,15 +37,16 @@ LegResults6814 <- aggregate(x = LegResults6814["votes"], by = LegResults6814[c("
 
 # Coding dummy variables prez_party (1 if the president is a Democrat, -1 if the president is a Republican) and mid_penalty (1 if the president is a Democrat, -1 if the president is a Republican, 0 if the year includes a presidential election).
 
-LegResults6814$prez_party <- ifelse(LegResults6814$year %in% c(1968, 1978,1980,1994,1996,1998,2000,2010,2012,2014,2016), 1, -1)
-LegResults6814$mid_penalty <- ifelse(LegResults6814$year %in% c(1968,1972,1976,1980,1984,1988,1992,1996,2000,2004,2008,2012), 0, ifelse(LegResults6814$year %in% c(1970,1974,1982,1986,1990,2002,2006), -1, 1))
+threeoffices$prez_party <- ifelse(threeoffices$year %in% c(1968, 1978,1980,1994,1996,1998,2000,2010,2012,2014,2016), 1, -1)
+threeoffices$mid_penalty <- ifelse(threeoffices$year %in% c(1968,1972,1976,1980,1984,1988,1992,1996,2000,2004,2008,2012, 2016), 0, ifelse(LegResults6814$year %in% c(1970,1974,1982,1986,1990,2002,2006), -1, 1))
 
 # Coding for dummy variable incumbent (1 if the seat up for election is held by a democrat, -1 if held by a Republican, 0 if the seat is open).
 
 LegResults6814 <- LegResults6814  %>%
   mutate(dummyparty = ifelse(party == "Dem", 1, -1)) %>%
-  mutate(incumbent = dummyparty * incumbency) %>%
-  spread(key = party, value = votes)
+  mutate(incumbentparty = dummyparty * incumbency) %>%
+  spread(key = party, value = votes) %>%
+  filter(year > 1972)
 LegResults6814[is.na(LegResults6814)] <- 0
 
 # Repeating the same steps for LegResults16
@@ -63,68 +64,57 @@ LegResults16$party <- ifelse(LegResults16$party == "Democratic", "Dem", "Repub")
 LegResults16 <- aggregate(x = LegResults16["votes"], by = LegResults16[c("year", "chamber", "District", "party", "incumbency")], sum)
 LegResults16 <- LegResults16  %>%
   mutate(dummyparty = ifelse(party == "Dem", 1, -1)) %>%
-  mutate(incumbent = dummyparty * incumbency) %>%
-  mutate(prez_party = 1,
-         mid_penalty = 0) %>%
-  spread(key = party, value = votes)
+  mutate(incumbentparty = dummyparty * incumbency) %>%
+  spread(key = party, value = votes) %>%
+  filter(year > 1972)
 LegResults16[is.na(LegResults16)] <- 0
 
 head(LegResults6814)
 ```
 
-    ##   year chamber District incumbency prez_party mid_penalty dummyparty
-    ## 1 1968      HS        2          0          1           0          1
-    ## 2 1968      HS        2          1          1           0         -1
-    ## 3 1968      HS        3          1          1           0          1
-    ## 4 1968      HS        5          0          1           0         -1
-    ## 5 1968      HS        6          0          1           0          1
-    ## 6 1968      HS        6          1          1           0         -1
-    ##   incumbent   Dem Repub
-    ## 1         0 22297     0
-    ## 2        -1     0 68566
-    ## 3         1 50654     0
-    ## 4         0     0 34854
-    ## 5         0 24515     0
-    ## 6        -1     0 71799
+    ##   year chamber District incumbency dummyparty incumbentparty   Dem Repub
+    ## 1 1974      HS        3          0          1              0 41972     0
+    ## 2 1974      HS        4          0         -1              0     0 36820
+    ## 3 1974      HS        5          0          1              0 45873     0
+    ## 4 1974      HS        6          0         -1              0     0 27665
+    ## 5 1974      HS        6          1          1              1 64472     0
+    ## 6 1974      HS        7          0         -1              0     0 33842
 
 ``` r
 head(LegResults16)
 ```
 
-    ##   year chamber District incumbency dummyparty incumbent prez_party
-    ## 1 2016      HS        1          1         -1        -1          1
-    ## 2 2016      HS        2          1          1         1          1
-    ## 3 2016      HS        3          0          1         0          1
-    ## 4 2016      HS        3          1         -1        -1          1
-    ## 5 2016      HS        4          0         -1         0          1
-    ## 6 2016      HS        4          0          1         0          1
-    ##   mid_penalty    Dem  Repub
-    ## 1           0      0 197166
-    ## 2           0  32781      0
-    ## 3           0 109521      0
-    ## 4           0      0 178787
-    ## 5           0      0 100170
-    ## 6           0 176279      0
+    ##   year chamber District incumbency dummyparty incumbentparty    Dem  Repub
+    ## 1 2016      HS        1          1         -1             -1      0 197166
+    ## 2 2016      HS        2          1          1              1  32781      0
+    ## 3 2016      HS        3          0          1              0 109521      0
+    ## 4 2016      HS        3          1         -1             -1      0 178787
+    ## 5 2016      HS        4          0         -1              0      0 100170
+    ## 6 2016      HS        4          0          1              0 176279      0
 
 We have selected variables of interest and created new variables that will be useful for our model. Each observation still represents how a district voted for each candidate, so we need to aggregate the votes in the republican and democrat candidate columns so that each observation represents how a district voted for both parties' candidates.
 
 ``` r
 # Aggregating rows by votes so that our LegResults 6814 dataset is now a district's legislative election
 
-LegResults6814 <- aggregate(x = LegResults6814[c("Dem", "Repub", "incumbent")],
+LegResults6814 <- aggregate(x = LegResults6814[c("Dem",
+                                                 "Repub",
+                                                 "incumbency",
+                                                 "incumbentparty",
+                                                 "dummyparty")],
                             by = LegResults6814[c("year",
                                                   "chamber",
-                                                  "District",
-                                                  "prez_party",
-                                                  "mid_penalty")],
+                                                  "District")],
                             sum)
 
-LegResults16 <- aggregate(x = LegResults16[c("Dem", "Repub", "incumbent")],
+LegResults16 <- aggregate(x = LegResults16[c("Dem",
+                                             "Repub",
+                                             "incumbency",
+                                             "incumbentparty",
+                                             "dummyparty")],
                           by = LegResults16[c("year",
                                               "chamber",
-                                              "District",
-                                              "prez_party",
-                                              "mid_penalty")],
+                                              "District")],
                           sum)
 ```
 
@@ -132,8 +122,9 @@ Our dataset on voting totals for presidential, gubernatorial, and US Senate offi
 
 ``` r
 threeoffices <- threeoffices %>%
-  filter(Dummy1 == 1) %>%
-  select(year, chamber, dist, (17:24)) %>%
+  filter(Dummy1 == 1,
+         year > 1972) %>%
+  select(year, chamber, dist, (17:24), prez_party, mid_penalty) %>%
   rename(District = dist)
 ```
 
@@ -142,25 +133,25 @@ Now both datasets are clean, and we will join them soon. However, first we need 
 ### Importing and cleaning presidential approval and economy strength data
 
 ``` r
-Econ_State <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/econ-strength.xls")
+Econ_State2 <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/econ-strength.xls")
 PrezApprove <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/Gallup_Prez_Approv_1966to2016.xlsx")
 
 PrezApprove <- PrezApprove %>%
   select(Year, Approve) %>%
   rename(year = Year)
 
-# For percent change in real income, we are using Dr. Klarner's weighted percent change formula. This includes attributing the highest weight to the quarter that just passed (January through March) and the lowest weight to the most outdated quarter (April through June of the previous year). The reason we are doing this is because we expect that voters focus more on how the economy has changed now, and less 10 months ago. First, we need to measure percent change for each quarter. Our dataset only gives raw income values, so the first mutation creates percent changes for each quarter, and our second mutation creates our weighted annual percent change.
+# For percent change in real income, we are using Dr. Klarner's weighted percent change formula. This includes attributing the highest weight to the most recent quarter. In our case, since we will test this model days before the election, the second quarter (July through September) will have the largest weight. The reason we are doing this is because we expect that voters focus more on how the economy has changed now, and less 10 months ago. First, we need to measure percent change for each quarter. Our dataset only gives raw income values, so the first mutation creates percent changes for each quarter, and our second mutation creates our weighted annual percent change.
 
-Econ_State <- Econ_State %>%
+Econ_State <- Econ_State2 %>%
   spread(key = Quarter, value = Income) %>%
   mutate(I_IIpercent = (II-I)/I,
          II_IIIpercent = (lag(III)-lag(II))/lag(II),
          III_IVpercent = (lag(IV)-lag(III))/lag(III),
          IV_Ipercent = (I - lag(IV))/lag(IV)) %>%
-  mutate(perc_change = (4*I_IIpercent +
-                        3*IV_Ipercent +
-                        2*III_IVpercent +
-                        IV_Ipercent)/10) %>%
+  mutate(perc_change = (3*I_IIpercent +
+                        4*II_IIIpercent +
+                        III_IVpercent +
+                        2*IV_Ipercent)/10) %>%
   rename(year = Year)
 ```
 
@@ -169,27 +160,43 @@ Econ_State <- Econ_State %>%
 ``` r
 # First joining the legislative results from 2016 to legislative results from 1968 through 2014.
 
-LegResults <- full_join(LegResults16, LegResults6814, by = c("year", "chamber", "District", "prez_party", "mid_penalty", "Dem", "Repub", "incumbent"))
+LegResults <- full_join(LegResults16, LegResults6814, by = c("year", "chamber", "District",  "Dem", "Repub", "incumbentparty", "incumbency", "dummyparty"))
 
 # Joining the entire legislative results to US offices results.
 
 Results <- full_join(LegResults, threeoffices, by = c("year", "chamber", "District"))
 
-# Adding another incumbent variable, this time to explicitly describe which party holds the incumbency. Also adding a categorical variable Leg_winner to represent which party captured the legislative seat.
-
-Results <- Results %>%
-  rename(Leg_Dem = Dem, Leg_Repub = Repub) %>%
-  mutate(incumb_party = ifelse(incumbent == 1, "Democrat", ifelse(incumbent == 0, "No incumbent", "Republican")),
-         Leg_winner = ifelse(Leg_Repub > Leg_Dem, "Republican", "Democract"))
-
 # Joining presidential approval and percent change in real income data to the Results. Also creating another presidential approval rating variable that multiplies the rating by -1 if the president is republican.
 
 Results <- left_join(Results, Econ_State, by = "year")
 Results <- left_join(Results, PrezApprove, by = "year")
+
+# Importing 2018 empty data and joining it to include lagged effects.
+
+df2018 <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/2018template.xlsx")
+
+df2018 <- df2018 %>%
+  mutate(prez_party = -1, mid_penalty = 1)
+
+Results <- full_join(Results, df2018, by = c("year",
+                                             "chamber",
+                                             "District",
+                                             "prez_party",
+                                             "mid_penalty"))
+
+# Adding another incumbent variable, this time to explicitly describe which party holds the incumbency. Also adding a categorical variable Leg_winner to represent which party captured the legislative seat.
+
 Results <- Results %>%
-  mutate(ApprxParty = Approve*prez_party,
+  rename(Leg_Dem = Dem, Leg_Repub = Repub) %>%
+  mutate(incumb_party_name = ifelse(incumbentparty == 1, "Democrat", ifelse(incumbentparty == 0, "No incumbent", "Republican")),
+         Leg_winner = ifelse(Leg_Repub > Leg_Dem, "Republican", "Democract"),
          perc_Dem = Leg_Dem / (Leg_Dem + Leg_Repub),
-         perc_Repub = Leg_Repub / (Leg_Dem + Leg_Repub))
+         perc_Repub = Leg_Repub / (Leg_Dem + Leg_Repub)) %>%
+  arrange(year, chamber, District) %>%
+  mutate(perc_prez_Dem = Prez_Dem/(Prez_Dem + Prez_Repub),
+         perc_sen_Dem = US_Sen_Dem/(US_Sen_Dem + US_Sen_Repub),
+         perc_sen2_Dem = US_Sen2_Dem/(US_Sen2_Dem + US_Sen2_Repub),
+         perc_gub_Dem = Gub_Dem/(Gub_Dem + Gub_Repub))
 ```
 
 ### Fully clean dataset
@@ -198,41 +205,48 @@ Results <- Results %>%
 head(Results)
 ```
 
-    ##   year chamber District prez_party mid_penalty Leg_Dem Leg_Repub incumbent
-    ## 1 2016      HS        1          1           0       0    197166        -1
-    ## 2 2016     SEN        1          1           0   61142    465610        -1
-    ## 3 2016      HS        2          1           0   32781         0         1
-    ## 4 2016      HS        3          1           0  109521    178787        -1
-    ## 5 2016     SEN        3          1           0  299402         0         0
-    ## 6 2016      HS        4          1           0  176279    100170         0
-    ##   Prez_Dem Prez_Repub Gub_Dem Gub_Repub US_Sen_Dem US_Sen_Repub
-    ## 1    78448     123348      NA        NA         NA           NA
-    ## 2   177049     248559      NA        NA         NA           NA
-    ## 3   129765      60457      NA        NA         NA           NA
-    ## 4    70105      94699      NA        NA         NA           NA
-    ## 5   260673     111812      NA        NA         NA           NA
-    ## 6   123163      58516      NA        NA         NA           NA
-    ##   US_Sen2_Dem US_Sen2_Repub incumb_party Leg_winner       I      II
-    ## 1          NA            NA   Republican Republican 15740.1 15929.4
-    ## 2          NA            NA   Republican Republican 15740.1 15929.4
-    ## 3          NA            NA     Democrat  Democract 15740.1 15929.4
-    ## 4          NA            NA   Republican Republican 15740.1 15929.4
-    ## 5          NA            NA No incumbent  Democract 15740.1 15929.4
-    ## 6          NA            NA No incumbent  Democract 15740.1 15929.4
-    ##       III      IV I_IIpercent II_IIIpercent III_IVpercent IV_Ipercent
-    ## 1 16111.1 16265.7  0.01202661    0.01001175   0.008620413 0.003180329
-    ## 2 16111.1 16265.7  0.01202661    0.01001175   0.008620413 0.003180329
-    ## 3 16111.1 16265.7  0.01202661    0.01001175   0.008620413 0.003180329
-    ## 4 16111.1 16265.7  0.01202661    0.01001175   0.008620413 0.003180329
-    ## 5 16111.1 16265.7  0.01202661    0.01001175   0.008620413 0.003180329
-    ## 6 16111.1 16265.7  0.01202661    0.01001175   0.008620413 0.003180329
-    ##   perc_change Approve ApprxParty  perc_Dem perc_Repub
-    ## 1 0.007806857      53         53 0.0000000  1.0000000
-    ## 2 0.007806857      53         53 0.1160736  0.8839264
-    ## 3 0.007806857      53         53 1.0000000  0.0000000
-    ## 4 0.007806857      53         53 0.3798750  0.6201250
-    ## 5 0.007806857      53         53 1.0000000  0.0000000
-    ## 6 0.007806857      53         53 0.6376547  0.3623453
+    ##   year chamber District Leg_Dem Leg_Repub incumbency incumbentparty
+    ## 1 1974      HS        1      NA        NA         NA             NA
+    ## 2 1974      HS        2      NA        NA         NA             NA
+    ## 3 1974      HS        3   41972         0          0              0
+    ## 4 1974      HS        4       0     36820          0              0
+    ## 5 1974      HS        5   45873         0          0              0
+    ## 6 1974      HS        6   64472     27665          1              1
+    ##   dummyparty Prez_Dem Prez_Repub Gub_Dem Gub_Repub US_Sen_Dem US_Sen_Repub
+    ## 1         NA       NA         NA   49033     45113      54624        35815
+    ## 2         NA       NA         NA   51300     41867      58658        30320
+    ## 3          1       NA         NA   41675     48068      49590        35463
+    ## 4         -1       NA         NA   43442     38605      54781        25016
+    ## 5          1       NA         NA   42013     38264      50049        27862
+    ## 6          0       NA         NA   49335     43671      59964        30545
+    ##   US_Sen2_Dem US_Sen2_Repub prez_party mid_penalty      I     II    III
+    ## 1          NA            NA         -1           1 1204.4 1230.4 1266.6
+    ## 2          NA            NA         -1           1 1204.4 1230.4 1266.6
+    ## 3          NA            NA         -1           1 1204.4 1230.4 1266.6
+    ## 4          NA            NA         -1           1 1204.4 1230.4 1266.6
+    ## 5          NA            NA         -1           1 1204.4 1230.4 1266.6
+    ## 6          NA            NA         -1          -1 1204.4 1230.4 1266.6
+    ##     IV I_IIpercent II_IIIpercent III_IVpercent IV_Ipercent perc_change
+    ## 1 1296  0.02158751    0.02440763    0.03321739  0.01363407  0.02228786
+    ## 2 1296  0.02158751    0.02440763    0.03321739  0.01363407  0.02228786
+    ## 3 1296  0.02158751    0.02440763    0.03321739  0.01363407  0.02228786
+    ## 4 1296  0.02158751    0.02440763    0.03321739  0.01363407  0.02228786
+    ## 5 1296  0.02158751    0.02440763    0.03321739  0.01363407  0.02228786
+    ## 6 1296  0.02158751    0.02440763    0.03321739  0.01363407  0.02228786
+    ##   Approve incumb_party_name Leg_winner  perc_Dem perc_Repub perc_prez_Dem
+    ## 1      54              <NA>       <NA>        NA         NA            NA
+    ## 2      54              <NA>       <NA>        NA         NA            NA
+    ## 3      54      No incumbent  Democract 1.0000000  0.0000000            NA
+    ## 4      54      No incumbent Republican 0.0000000  1.0000000            NA
+    ## 5      54      No incumbent  Democract 1.0000000  0.0000000            NA
+    ## 6      54          Democrat  Democract 0.6997406  0.3002594            NA
+    ##   perc_sen_Dem perc_sen2_Dem perc_gub_Dem
+    ## 1    0.6039872            NA    0.5208187
+    ## 2    0.6592416            NA    0.5506241
+    ## 3    0.5830482            NA    0.4643816
+    ## 4    0.6865045            NA    0.5294770
+    ## 5    0.6423868            NA    0.5233504
+    ## 6    0.6625197            NA    0.5304496
 
 ### Importing CA shapefiles
 
@@ -242,15 +256,15 @@ To visualiza our data, we would like to include a map of California senatorial a
 SENshape <- readShapePoly("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/CA_SEN_shapefile/cb_2016_06_sldu_500k.shp")
 HSshape <- readShapePoly("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/CA_HS_shapefile/cb_2016_06_sldl_500k.shp")
 
-SENshape <- fortify(SENshape, region = "NAME")
-HSshape <- fortify(HSshape, region = "NAME")
+SENshapefort <- fortify(SENshape, region = "NAME")
+HSshapefort <- fortify(HSshape, region = "NAME")
 ```
 
 ### Some visualizations
 
 ``` r
 plot1 <- ggplot(Results, aes(y = Leg_Dem, x = Leg_Repub)) +
-  geom_point(mapping = aes(col = incumb_party)) +
+  geom_point(mapping = aes(col = incumb_party_name)) +
   scale_colour_manual(values = c("blue", "grey", "red")) +
   geom_abline(intercept = 0, slope = 1) +
   ylab("Vote count for the Democratic Candidate") +
@@ -263,17 +277,35 @@ plot1
 ![](FinalProject_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
 ``` r
+plot2 <- ggplot(Results, aes(y = perc_Dem, x = year)) +
+  geom_smooth(mapping = aes(col = incumb_party_name)) +
+  scale_colour_manual(values = c("blue", "grey", "red")) +
+  geom_abline(intercept = .5, slope = 0) +
+  ggtitle("The incumbency effect over time") +
+  xlab("Election") +
+  ylab("Percent of votes for Democrat") +
+  labs(col = "Incumbency status")
+plot2
+```
+
+![](FinalProject_files/figure-markdown_github/unnamed-chunk-9-2.png)
+
+``` r
+# Plot 2 shows that the incumbency advantage has diminished in the past two
+# decades. Thus, in our model, we should vary the incumbency variable by time.
+```
+
+``` r
 # Creating a subset of Results that only includes senatorial district voting totals in 2014.
 
 SEN14 <- Results %>%
   filter(year == 2014, chamber == "SEN")
 
-SEN14map <-
-  ggplot() +
+SEN14map <- ggplot() +
   geom_map(data = SEN14,
            aes(map_id = District, fill = perc_Dem),
-           map = SENshape) +
-  expand_limits(x = SENshape$long, y = SENshape$lat) +
+           map = SENshapefort) +
+  expand_limits(x = SENshapefort$long, y = SENshapefort$lat) +
   scale_fill_gradient2(low = muted("red"),
                        mid = "white", midpoint = .5,
                        high = muted("blue"),
@@ -285,3 +317,224 @@ SEN14map
 ```
 
 ![](FinalProject_files/figure-markdown_github/unnamed-chunk-10-1.png)
+
+``` r
+# Visualizing the relationship between econ-strength*prez_party and perc_Dem
+
+plot3 <- ggplot(Results, aes(y = perc_Dem, x = perc_change)) +
+  geom_smooth() +
+  facet_grid(. ~ prez_party)
+plot3
+```
+
+![](FinalProject_files/figure-markdown_github/unnamed-chunk-11-1.png)
+
+Create a Mixed Effects Model
+----------------------------
+
+``` r
+# We need to code for NAs so that the observations used in our model will not
+# be excluded if one of the variables we use include an NA. We will store these
+# changes under a new dataset Resultsmodel. Also, we will code for lagged
+# variables, which include observations for each variable from the previous
+# election.
+
+Resultsmodel <- Results %>%
+  mutate(perc_changeLag = lag(perc_change, 120),
+         ApproveLag = lag(Approve, 120),
+         incumbentpartyLag = lag(incumbentparty, 120),
+         perc_DemLag = lag(perc_Dem, 120),
+         perc_prez_DemLag = lag(perc_prez_Dem, 120),
+         perc_gub_DemLag = lag(perc_gub_Dem, 120),
+         perc_sen_DemLag = lag(perc_sen_Dem, 120))
+
+Resultsmodel[c("Leg_Dem",
+          "Leg_Repub",
+          "Prez_Dem",
+          "Prez_Repub",
+          "incumbency",
+          "incumbentparty",
+          "dummyparty",
+          "Gub_Dem",
+          "Gub_Repub",
+          "US_Sen_Dem",
+          "US_Sen_Repub",
+          "US_Sen2_Dem",
+          "US_Sen2_Repub")][is.na(Resultsmodel[c("Leg_Dem",
+                                      "Leg_Repub",
+                                      "Prez_Dem",
+                                      "Prez_Repub",
+                                      "incumbency",
+                                      "incumbentparty",
+                                      "dummyparty",
+                                      "Gub_Dem",
+                                      "Gub_Repub",
+                                      "US_Sen_Dem",
+                                      "US_Sen_Repub",
+                                      "US_Sen2_Dem",
+                                      "US_Sen2_Repub")])] <- 0
+Resultsmodel[c("perc_Dem",
+          "perc_Repub",
+          "perc_prez_Dem",
+          "perc_sen_Dem",
+          "perc_sen2_Dem",
+          "perc_gub_Dem",
+          "perc_prez_DemLag",
+          "perc_gub_DemLag",
+          "perc_sen_DemLag")][is.na(Resultsmodel[c("perc_Dem",
+                                           "perc_Repub",
+                                           "perc_prez_Dem",
+                                           "perc_sen_Dem",
+                                           "perc_sen2_Dem",
+                                           "perc_gub_Dem",
+                                           "perc_prez_DemLag",
+                                           "perc_gub_DemLag",
+                                           "perc_sen_DemLag")])] <- .5
+Resultsmodel["Leg_winner"][is.na(Resultsmodel["Leg_winner"])] <- "No election"
+```
+
+``` r
+m1 <- lmer(perc_Dem ~ incumbentparty + (Approve|prez_party), Resultsmodel)
+
+m3 <- lmer(perc_Dem ~
+             perc_DemLag + incumbentpartyLag +
+             (1|year/District) +
+             incumbentparty + (1 + incumbentparty|year),
+             Resultsmodel)
+AIC(m3)
+```
+
+    ## [1] -33.62053
+
+``` r
+AIC(m1)
+```
+
+    ## [1] 282.4906
+
+``` r
+# Added in a random intercept term which crosses percent votes for a senator and presidential approval rating 
+m4 <- lmer(perc_Dem ~
+             perc_DemLag + incumbentpartyLag +
+             (1|year/District) +
+             incumbentparty + 
+             (1 + incumbentparty|year) +
+             (1|perc_sen_Dem/Approve),
+             Resultsmodel)
+AIC(m4)
+```
+
+    ## [1] 64.86942
+
+``` r
+m5 <- lmer(perc_Dem ~
+             perc_DemLag + incumbentpartyLag +
+             (1|year/District) +
+             incumbentparty + 
+             (1 + incumbentparty|year) +
+             (1|perc_sen_Dem/Approve) +
+             perc_change +
+             (1|perc_prez_Dem) + 
+             (1|perc_gub_Dem),
+             Resultsmodel)
+AIC(m5)
+```
+
+    ## [1] 67.16768
+
+``` r
+# Added perc_changeLag as fixed effect, and changed three offices covariates
+# to lagged variables. This rose the AIC but is necessary because we are using
+# last election's results to predict the next one.
+
+m6 <- lmer(perc_Dem ~
+             perc_DemLag + incumbentpartyLag + mid_penalty +
+             (1|year/District) +
+             incumbentparty + 
+             (1 + incumbentparty|year) +
+             perc_change +
+             perc_changeLag +
+             (1|perc_sen_DemLag) +
+             (1|perc_prez_DemLag) +
+             (1|perc_gub_DemLag),
+             Resultsmodel)
+AIC(m6)
+```
+
+    ## [1] 77.24173
+
+``` r
+summary(m6)
+```
+
+    ## Linear mixed model fit by REML ['lmerMod']
+    ## Formula: perc_Dem ~ perc_DemLag + incumbentpartyLag + mid_penalty + (1 |  
+    ##     year/District) + incumbentparty + (1 + incumbentparty | year) +  
+    ##     perc_change + perc_changeLag + (1 | perc_sen_DemLag) + (1 |  
+    ##     perc_prez_DemLag) + (1 | perc_gub_DemLag)
+    ##    Data: Resultsmodel
+    ## 
+    ## REML criterion at convergence: 45.2
+    ## 
+    ## Scaled residuals: 
+    ##      Min       1Q   Median       3Q      Max 
+    ## -2.33102 -0.24875 -0.01204  0.43579  2.20635 
+    ## 
+    ## Random effects:
+    ##  Groups           Name           Variance  Std.Dev.  Corr 
+    ##  District.year    (Intercept)    7.237e-04 2.690e-02      
+    ##  perc_sen_DemLag  (Intercept)    0.000e+00 0.000e+00      
+    ##  perc_gub_DemLag  (Intercept)    6.889e-03 8.300e-02      
+    ##  perc_prez_DemLag (Intercept)    1.188e-16 1.090e-08      
+    ##  year             (Intercept)    1.385e-04 1.177e-02      
+    ##                   incumbentparty 1.378e-03 3.712e-02 -1.00
+    ##  year.1           (Intercept)    0.000e+00 0.000e+00      
+    ##  Residual                        5.464e-02 2.338e-01      
+    ## Number of obs: 1440, groups:  
+    ## District:year, 1233; perc_sen_DemLag, 954; perc_gub_DemLag, 754; perc_prez_DemLag, 688; year, 21
+    ## 
+    ## Fixed effects:
+    ##                    Estimate Std. Error t value
+    ## (Intercept)        0.544117   0.024611  22.109
+    ## perc_DemLag        0.014095   0.019052   0.740
+    ## incumbentpartyLag  0.011803   0.011322   1.043
+    ## mid_penalty        0.009517   0.010218   0.931
+    ## incumbentparty     0.297934   0.014805  20.123
+    ## perc_change       -1.574491   1.284341  -1.226
+    ## perc_changeLag    -1.154481   1.407573  -0.820
+    ## 
+    ## Correlation of Fixed Effects:
+    ##             (Intr) prc_DL incmbL md_pnl incmbn prc_ch
+    ## perc_DemLag -0.435                                   
+    ## incmbntprtL  0.237 -0.501                            
+    ## mid_penalty  0.016 -0.017  0.003                     
+    ## incmbntprty -0.056 -0.013 -0.203  0.035              
+    ## perc_change -0.371  0.015  0.001  0.034 -0.005       
+    ## perc_chngLg -0.381  0.038 -0.083 -0.049 -0.009 -0.595
+
+### Testing the model
+
+``` r
+# Creating two datasets; one to build the model, and one to test the model.
+set.seed(1)
+train_indeces <- sample(1:nrow(Resultsmodel), size = 1380, replace = FALSE)
+default_train <- slice(Resultsmodel, train_indeces)
+default_test <- slice(Resultsmodel, -train_indeces)
+```
+
+``` r
+y6 <- predict(m6, newdata = default_test, type = "response", allow.new.levels = TRUE)
+default_test <- default_test %>%
+  mutate(p_hat6 = y6, pred_default6 = p_hat6 >.5)
+confusion_mat6 <- default_test %>%
+  group_by(perc_Dem, pred_default6) %>%
+  tally()
+false_pos6 <- confusion_mat6[2, 3]
+false_neg6 <- confusion_mat6[4, 3]
+total_obs6 <- nrow(default_test)
+mcr6 <- (false_pos6 + false_neg6)/total_obs6
+mcr6
+```
+
+    ##             n
+    ## 1 0.007246377
