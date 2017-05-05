@@ -351,6 +351,10 @@ Resultsmodel[c("perc_Dem",
                                            "perc_gub_DemLag",
                                            "perc_sen_DemLag")])] <- .5
 Resultsmodel["Leg_winner"][is.na(Resultsmodel["Leg_winner"])] <- "No election"
+
+Resultsmodel <- Resultsmodel %>%
+  mutate(mid_penalty = prez_party*mid_penalty,
+         Approve = prez_party*Approve)
 ```
 
 ```{r, warning=FALSE, message=FALSE}
@@ -379,17 +383,16 @@ summary(m4)
 # last election's results to predict the next one.
 
 m6 <- lmer(perc_Dem ~
-             perc_DemLag +
-             incumbentpartyLag +
-             mid_penalty*prez_party +
-             incumbentparty +
-             perc_sen_DemLag +
+             chamber +
+             perc_DemLag + (1 + perc_DemLag|District) +
              perc_prez_DemLag +
              perc_gub_DemLag +
-             perc_change +
-             perc_changeLag +
-             Approve*prez_party +
-             (1|year/District),
+             perc_sen_DemLag +
+             incumbentpartyLag +
+             incumbentparty + (1 + incumbentparty|year) +
+             perc_change + 
+             Approve + (1 + Approve|year) +
+             mid_penalty,
            data = Resultsmodel)
 AIC(m6)
 summary(m6)
