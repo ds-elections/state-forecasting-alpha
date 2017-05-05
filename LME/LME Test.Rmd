@@ -1,6 +1,6 @@
 ---
 title: "LME Sample Test"
-author: "Jonathan Matz"
+author: "EJ Arce and Jonathan Matz"
 date: "4/28/2017"
 output: github_document
 ---

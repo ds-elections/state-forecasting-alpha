@@ -18,7 +18,7 @@ library("tidyr")
 
   Forecasting elections is critical to the campaign strategies of candidates running for office. For example, a US presidential candidate needs 270 electoral votes to win an election, so they must efficiently allocate campaign resources to ensure victories in as many states as possible. Thus, it is important to know in which states the race is tight so they can focus campaign efforts on those states, while ignoring states that do not include tight races. Considering that much of the forecasting field has focused on US elections, our project focuses on forecasting election results for the California state legislature.
 
-  Our forecasting goal involves building a model that uses different covariates to predict the probability that a given California district will elect a democratic official in a two-party system. Such covariates include presidential approval, strength of the economy, the incumbency status of the seat up for election, and others. To do achieve such a model involves obtaining (messy) data from various sources. Although you will not be asked to build and test a model (certainly forecasting elections involve higher level modelling). The following exercises will help you understand the process of model building, starting from importing and cleaning messy datasets. 
+  Our forecasting goal involves building a model that uses different covariates to predict the probability that a given California district will elect a democratic official in a two-party system.  These covariates involve data from two different levels: the national and legislative district levels. Potential covariates from the national level include presidential approval, strength of the economy and others. Some potential covariates from the legislative district level incumbency status of the seat up for election, vote totals from each party, and others. The achievement of such a model involves obtaining (messy) data from various sources. Although you will not be asked to build and test a model (certainly forecasting elections involve higher level modelling). The following exercises will help you understand the process of model building, starting from importing and cleaning messy datasets. 
   
 * How much does incumbency affect election results?
     + Do incumbents generally recapture their seat?
@@ -94,4 +94,3 @@ plot1 <- ggplot(Results, aes(y = Leg_Dem, x = Leg_Repub)) +
   ggtitle("The incumbency effect")
 plot1
 ```
-
