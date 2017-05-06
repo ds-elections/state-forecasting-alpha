@@ -114,3 +114,9 @@ plot1
 * Other than a change in political views, what do you think could be a cause for the incumbent party losing the election (i.e. a Republican receiving more votes in an election where the Democratic party was the incumbent party)? Does the data account for this? (hint: think about the property of legislative districts)
 
 * The advantage of being an incumbent seems to diminish over time. How would you manipulate the plot to verify this trend?
+
+References
+
+United States. Califonia State Legislature.  “Article XXI Redistricting of Senate, Assembly,     
+  Congressional and Board of Equilization Districts [Section 1 – Sec. 3].” $California$ $Legislative$   
+  $Information$. 4 Nov. 2008. Web.
