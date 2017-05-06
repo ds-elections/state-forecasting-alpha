@@ -349,7 +349,7 @@ Resultsmodel[c("perc_Dem",
                                            "perc_gub_Dem",
                                            "perc_prez_DemLag",
                                            "perc_gub_DemLag",
-                                           "perc_sen_DemLag")])] <- .5
+                                           "perc_sen_DemLag")])] <- .0
 Resultsmodel["Leg_winner"][is.na(Resultsmodel["Leg_winner"])] <- "No election"
 
 Resultsmodel <- Resultsmodel %>%
