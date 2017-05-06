@@ -349,7 +349,7 @@ Resultsmodel[c("perc_Dem",
                                            "perc_gub_Dem",
                                            "perc_prez_DemLag",
                                            "perc_gub_DemLag",
-                                           "perc_sen_DemLag")])] <- .5
+                                           "perc_sen_DemLag")])] <- .0
 Resultsmodel["Leg_winner"][is.na(Resultsmodel["Leg_winner"])] <- "No election"
 
 Resultsmodel <- Resultsmodel %>%
@@ -396,6 +396,17 @@ m6 <- lmer(perc_Dem ~
            data = Resultsmodel)
 AIC(m6)
 summary(m6)
+
+m7 <- lmer(perc_Dem ~
+             (1 + perc_DemLag||chamdist) +
+             perc_prez_DemLag +
+             incumbentpartyLag +
+             incumbentparty + (1 + incumbentparty|year) +
+             perc_change + 
+             (1 + Approve|year),
+           data = Resultsmodel)
+AIC(m7)
+summary(m7) 
 ```
 
 ### Testing the model
