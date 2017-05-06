@@ -422,3 +422,36 @@ mcr6 <- (false_pos6 + false_neg6)/total_obs6
 mcr6
 ```
 
+## New Model
+
+```{r}
+# Still need chamdist
+
+Results1 <- Results %>%
+  mutate(mid_penalty = prez_party*mid_penalty,
+         Approve = prez_party*Approve) %>%
+  mutate(chamdist = rep(1:120, times = 23))
+```
+
+
+```{r}
+Calc_err <- function(formula, initial_lag = 20){
+  n <- length(unique(Results1$year))
+  n_predict <- n - initial_lag
+  RSS <- rep(NA, n=predict)
+  for(i in 1:n_predict){
+    train <- Results1 %>%
+      filter(year < min(Results1$year) + initial_lag + 2*i)
+    test <- Results1 %>%
+      filter(year == 2000)
+    m1 <- lmer(perc_Dem ~ perc_change + (1|chamdist), data = train)
+    
+    y1 <- predict(m1 , data = test)
+    y2 <- simulate(m1 , data = test)
+    RSS[i] <- sum((test$perc_Dem - y2)^2)
+  }
+  mean(RSS)}
+
+Calc_err(perc_Dem ~ perc_prez_Demt_1 + perc_prez_Demt_2)
+```
+
