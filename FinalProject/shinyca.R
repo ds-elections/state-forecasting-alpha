@@ -9,6 +9,10 @@
 
 library(shiny)
 library(leaflet)
+library(rgdal)
+library(dplyr)
+library(maps)
+library(mapproj)
 
 SENdata <- Results %>%
   filter(chamber == "SEN") %>%
@@ -38,7 +42,7 @@ SENshinymap <- leaflet(SENleaf) %>%
                                                   bringToFront = TRUE))
 SENshinymap
 
-HSmap <- leaflet(HSleaf) %>%
+HSshinymap <- leaflet(HSleaf) %>%
   addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
               opacity = 1.0, fillOpacity = 0.5,
               fillColor = ~pal(HSleaf$perc_Dem),
