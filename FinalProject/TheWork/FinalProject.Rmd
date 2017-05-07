@@ -444,10 +444,9 @@ Results1 <- Results %>%
   mutate(chamdist = rep(1:120, times = 23))
 ```
 
-
 ```{r}
 
-Calc_err <- function(formula = perc_Dem ~ (perc_prez_Dem + perc_gub_Dem), initial_lag = 20){
+Calc_err <- function(formula = m1, initial_lag = 20){
   n <- length(unique(Results1$year))
   n_predict <- n - initial_lag
   RSS <- rep(NA, n=predict)
@@ -464,6 +463,6 @@ Calc_err <- function(formula = perc_Dem ~ (perc_prez_Dem + perc_gub_Dem), initia
   }
   mean(RSS)}
 
-Calc_err(perc_Dem ~ (perc_prez_Dem + perc_gub_Dem))
+Calc_err(m1)
 ```
 
