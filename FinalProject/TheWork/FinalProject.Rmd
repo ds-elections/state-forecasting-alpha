@@ -436,7 +436,7 @@ mcr6
 ## New Model
 
 ```{r}
-# Still need chamdist
+# Still need chamdist to indefity unique districts
 
 Results1 <- Results %>%
   mutate(mid_penalty = prez_party*mid_penalty,
@@ -446,7 +446,8 @@ Results1 <- Results %>%
 
 
 ```{r}
-Calc_err <- function(formula, initial_lag = 20){
+
+Calc_err <- function(formula = perc_Dem ~ (perc_prez_Dem + perc_gub_Dem), initial_lag = 20){
   n <- length(unique(Results1$year))
   n_predict <- n - initial_lag
   RSS <- rep(NA, n=predict)
@@ -455,14 +456,14 @@ Calc_err <- function(formula, initial_lag = 20){
       filter(year < min(Results1$year) + initial_lag + 2*i)
     test <- Results1 %>%
       filter(year == 2000)
-    m1 <- lmer(perc_Dem ~ perc_change + (1|chamdist), data = train)
+    m1 <- lmer(formula = perc_Dem ~ (perc_change + Approve + (1|chamdist)), data = train)
     
     y1 <- predict(m1 , data = test)
     y2 <- simulate(m1 , data = test)
-    RSS[i] <- sum((test$perc_Dem - y2)^2)
+    RSS[i] <- sum((test$perc_Dem - y2$perc_Dem)^2)
   }
   mean(RSS)}
 
-Calc_err(perc_Dem ~ perc_prez_Demt_1 + perc_prez_Demt_2)
+Calc_err(perc_Dem ~ (perc_prez_Dem + perc_gub_Dem))
 ```
 
