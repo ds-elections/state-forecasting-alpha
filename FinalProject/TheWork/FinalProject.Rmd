@@ -180,12 +180,6 @@ df2018 <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAc
 df2018 <- df2018 %>%
   mutate(prez_party = -1, mid_penalty = 1)
 
-Results <- full_join(Results, df2018, by = c("year",
-                                             "chamber",
-                                             "District",
-                                             "prez_party",
-                                             "mid_penalty"))
-
 # Adding another incumbent variable, this time to explicitly describe which party holds the incumbency. Also adding a categorical variable Leg_winner to represent which party captured the legislative seat.
 
 Results <- Results %>%
@@ -387,13 +381,13 @@ Results <- Results %>%
          perc_sen_DemLag = lag(perc_sen_Dem, 120))
 
 Resultsmodel <- Results %>%
-  mutate(perc_changeLag = lag(perc_change, 120),
-         ApproveLag = lag(Approve, 120),
-         incumbentpartyLag = lag(incumbentparty, 120),
-         perc_DemLag = lag(perc_Dem, 120),
-         perc_prez_DemLag = lag(perc_prez_Dem, 120),
-         perc_gub_DemLag = lag(perc_gub_Dem, 120),
-         perc_sen_DemLag = lag(perc_sen_Dem, 120))
+  mutate(perc_changeLag2 = lag(perc_change, 120),
+         ApproveLag2 = lag(Approve, 120),
+         incumbentpartyLag2 = lag(incumbentparty, 120),
+         perc_DemLag2 = lag(perc_Dem, 120),
+         perc_prez_DemLag2 = lag(perc_prez_Dem, 120),
+         perc_gub_DemLag2 = lag(perc_gub_Dem, 120),
+         perc_sen_DemLag2 = lag(perc_sen_Dem, 120))
 
 Resultsmodel[c("Leg_Dem",
           "Leg_Repub",
@@ -440,20 +434,13 @@ Resultsmodel[c("perc_Dem",
 Resultsmodel["Leg_winner"][is.na(Resultsmodel["Leg_winner"])] <- "No election"
 
 Resultsmodel <- Resultsmodel %>%
-  mutate(mid_penalty = prez_party*mid_penalty,
+  mutate(perc_prez_DemLag2 = lag(perc_prez_Dem, 240),
+         perc_gub_DemLag2 = lag(perc_gub_Dem, 240),
+         perc_sen_DemLag2 = lag(perc_sen_Dem, 240),
+         mid_penalty = prez_party*mid_penalty,
          Approve = prez_party*Approve,
-         perc_change = perc_change*prez_party) %>%
-  mutate(chamdist = rep(1:120, times = 23))
-```
-
-```{r, warning=FALSE, message=FALSE}
-m1 <- lmer(formula = perc_Dem ~ 
-             perc_DemLag +
-             incumbentparty +
-             perc_change +
-             (1|chamdist),
-           data = Resultsmodel)
-AIC(m1)
+         perc_change = perc_change*prez_party,
+         chamdist = rep(1:120, times = 22))
 ```
 
 ```{r}
@@ -512,22 +499,60 @@ mcr6
 ```{r}
 # Still need chamdist to indefity unique districts
 
-Results1 <- Results %>%
+Resultsmodel <- Resultsmodel %>%
   mutate(mid_penalty = prez_party*mid_penalty,
          Approve = prez_party*Approve,
-         chamdist = rep(1:120, times = 23),
          prez_elec = ifelse(year %in% c(1976, 1980, 1984, 1988, 1992, 1996,
-                                        2000, 2004, 2008, 2012, 2016), 1, 0)) %>%
-  mutate(p_prez_Dem_elec = perc_prez_Dem*prez_elec,
+                                        2000, 2004, 2008, 2012, 2016), 1, 0),
+         p_prez_Dem_elec = perc_prez_Dem*prez_elec,
          perc_change = perc_change*prez_party)
 ```
 
 ```{r}
+# Models ranging from simple to complex
+m1 <- lmer(perc_Dem ~
+             incumbentparty +
+             perc_change +
+             (1|chamdist),
+           data = Resultsmodel)
 
-Calc_err <- function(formula = perc_Dem ~ perc_DemLag +
-                       incumbentparty +
-                       perc_change +
-                       (1|chamdist),
+m2 <- lmer(perc_Dem ~
+             Approve +
+             incumbentparty +
+             perc_change +
+             (1|chamdist),
+           data = Resultsmodel)
+
+m3 <- lmer(perc_Dem ~
+             perc_DemLag +
+             Approve +
+             incumbentparty +
+             perc_change +
+             (1|chamdist),
+           data = Resultsmodel)
+
+# m3 added a lagged vote for legislative offices the previous year, but this is
+# not looking like a better model. The coefficient for this variable was
+# negative which is not what we expect. One reason this variable might not
+# be a good predictor is because many observations have NAs.
+
+m4 <- lmer(perc_Dem ~
+             Approve +
+             incumbentparty +
+             perc_change +
+             perc_prez_DemLag +
+             (1|chamdist),
+           data = Resultsmodel)
+```
+
+```{r}
+# Building a function to find MSE
+
+Calc_err <- function(formula = perc_Dem ~
+             Approve +
+             incumbentparty +
+             perc_change +
+             (1|chamdist),
                      data = train,
                      initial_lag = 12){
   n <- length(unique(Results1$year))
@@ -538,21 +563,32 @@ Calc_err <- function(formula = perc_Dem ~ perc_DemLag +
       filter(year < min(Results1$year) + 2*(initial_lag + i) - 1)
     test <- Results1 %>%
       filter(year == min(Results1$year) + 2*(initial_lag + i))
-    m1 <- lmer(formula = perc_Dem ~
-                 perc_DemLag +
-                 incumbentparty +
-                 perc_change +
-                 (1|chamdist),
+    m <- lmer(formula = perc_Dem ~
+             Approve +
+             incumbentparty +
+             perc_change +
+             (1|chamdist),
                data = train)
-    y1 <- predict(m1 , data = test, na.rm = TRUE)
-    y2 <- simulate(m1 , data = test, na.rm = TRUE)
+    y1 <- predict(m , data = test, na.rm = TRUE)
+    y2 <- simulate(m , data = test, na.rm = TRUE)
     RSS[i] <- sum((test$perc_Dem - y2)^2, na.rm = TRUE)
   }
   mean(RSS)}
 
-Calc_err(perc_Dem ~ perc_DemLag +
-                       incumbentparty +
-                       perc_change +
-                       (1|chamdist))
+Calc_err(perc_Dem ~
+             Approve +
+             incumbentparty +
+             perc_change +
+             (1|chamdist))
+```
+
+### Using the model to predict 2018 results
+
+```{r}
+Results <- full_join(Results, df2018, by = c("year",
+                                             "chamber",
+                                             "District",
+                                             "prez_party",
+                                             "mid_penalty"))
 ```
 
