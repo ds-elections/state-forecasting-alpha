@@ -368,97 +368,42 @@ plot3
 # changes under a new dataset Resultsmodel. Also, we will code for lagged
 # variables, which include observations for each variable from the previous
 # election.
-
+Results["perc_prez_Dem"][is.na(Results["perc_prez_Dem"])] <- 0
 Results <- Results %>%
   mutate(perc_changeLag = lag(perc_change, 120),
          ApproveLag = lag(Approve, 120),
          incumbentpartyLag = lag(incumbentparty, 120),
          perc_DemLag = lag(perc_Dem, 120),
-         perc_prez_DemLag = lag(perc_prez_Dem, 120),
+         perc_prez_DemLag2 = (lag(perc_prez_Dem, 240) +
+                                2*lag(perc_prez_Dem, 120))/3,
          perc_gub_DemLag = lag(perc_gub_Dem, 120),
          perc_sen_DemLag = lag(perc_sen_Dem, 120),
-         Approve = Approve*prez_party)
-
-Resultsmodel <- Results %>%
-  mutate(perc_prez_DemLag2 = lag(perc_prez_Dem, 240),
-         perc_gub_DemLag2 = lag(perc_gub_Dem, 240),
-         perc_sen_DemLag2 = lag(perc_sen_Dem, 240),
-         Approve = prez_party*Approve,
-         perc_change = perc_change*prez_party,
+         Approve = Approve*prez_party,
          chamdist = rep(1:120, times = 22))
+Results["perc_prez_DemLag2"][is.na(Results["perc_prez_DemLag2"])] <- 0
+Resultsmodel <- Results
 
-Resultsmodel[c("Leg_Dem",
-          "Leg_Repub",
-          "Prez_Dem",
-          "Prez_Repub",
-          "incumbency",
-          "incumbentparty",
-          "dummyparty",
-          "Gub_Dem",
-          "Gub_Repub",
-          "US_Sen_Dem",
-          "US_Sen_Repub",
-          "US_Sen2_Dem",
-          "US_Sen2_Repub")][is.na(Resultsmodel[c("Leg_Dem",
-                                      "Leg_Repub",
-                                      "Prez_Dem",
-                                      "Prez_Repub",
-                                      "incumbency",
-                                      "incumbentparty",
-                                      "dummyparty",
-                                      "Gub_Dem",
-                                      "Gub_Repub",
-                                      "US_Sen_Dem",
-                                      "US_Sen_Repub",
-                                      "US_Sen2_Dem",
-                                      "US_Sen2_Repub")])] <- 0
+Resultsmodel["incumbentparty"][is.na(Resultsmodel["incumbentparty"])] <- 0
 Resultsmodel[c("perc_Dem",
           "perc_Repub",
           "perc_prez_Dem",
           "perc_sen_Dem",
           "perc_sen2_Dem",
           "perc_gub_Dem",
-          "perc_prez_DemLag",
-          "perc_gub_DemLag",
-          "perc_sen_DemLag")][is.na(Resultsmodel[c("perc_Dem",
+          "perc_prez_DemLag")][is.na(Resultsmodel[c("perc_Dem",
                                            "perc_Repub",
                                            "perc_prez_Dem",
                                            "perc_sen_Dem",
                                            "perc_sen2_Dem",
                                            "perc_gub_Dem",
-                                           "perc_prez_DemLag",
-                                           "perc_gub_DemLag",
-                                           "perc_sen_DemLag")])] <- .0
+                                           "perc_prez_DemLag")])] <- .0
 Resultsmodel["Leg_winner"][is.na(Resultsmodel["Leg_winner"])] <- "No election"
+
+Resultsmodel <- Resultsmodel %>%
+  mutate(perc_prez_DemLag2 = (lag(perc_prez_Dem, 240) +
+                                2*lag(perc_prez_Dem, 120))/3,
+         perc_change = perc_change*prez_party)
 ```
-
-```{r}
-# Added perc_changeLag as fixed effect, and changed three offices covariates
-# to lagged variables. This rose the AIC but is necessary because we are using
-# last election's results to predict the next one.
-
-m6 <- lmer(perc_Dem ~
-             perc_DemLag + (1 + perc_DemLag|chamdist) +
-             perc_prez_DemLag +
-             perc_gub_DemLag +
-             perc_sen_DemLag +
-             incumbentpartyLag +
-             incumbentparty + (1 + incumbentparty|year) +
-             perc_change + 
-             Approve + (1 + Approve|year) +
-             mid_penalty,
-           data = Resultsmodel)
-
-m7 <- lmer(perc_Dem ~
-             (1 + perc_DemLag||chamdist) +
-             perc_prez_DemLag +
-             incumbentpartyLag +
-             incumbentparty + (1 + incumbentparty|year) +
-             perc_change + 
-             (1 + Approve|year),
-           data = Resultsmodel) 
-```
-
 
 ## New Model
 
@@ -504,33 +449,35 @@ m4 <- lmer(perc_Dem ~
              mid_penalty +
              Approve +
              incumbentparty +
-             perc_prez_DemLag +
+             perc_prez_DemLag2 +
              (1|chamdist),
            data = Resultsmodel)
+# model 4 adds a weighted variable measuring prior voting behavior for the
+# presidential office
 ```
 
 ```{r}
 # Building a function to find MSE
 
 Calc_err <- function(formula = perc_Dem ~
+             mid_penalty +
              Approve +
              incumbentparty +
-             perc_change +
              (1|chamdist),
                      data = train,
                      initial_lag = 12){
-  n <- length(unique(Results1$year))
+  n <- length(unique(Results$year))
   n_predict <- n - initial_lag -1
   RSS <- rep(NA, times = n_predict)
   for(i in 1:n_predict){
-    train <- Results1 %>%
-      filter(year < min(Results1$year) + 2*(initial_lag + i) - 1)
-    test <- Results1 %>%
-      filter(year == min(Results1$year) + 2*(initial_lag + i))
+    train <- Results %>%
+      filter(year < min(Results$year) + 2*(initial_lag + i) - 1)
+    test <- Results %>%
+      filter(year == min(Results$year) + 2*(initial_lag + i))
     m <- lmer(formula = perc_Dem ~
+             mid_penalty +
              Approve +
              incumbentparty +
-             perc_change +
              (1|chamdist),
                data = train)
     y1 <- predict(m , data = test, na.rm = TRUE)
@@ -540,9 +487,9 @@ Calc_err <- function(formula = perc_Dem ~
   mean(RSS)}
 
 Calc_err(perc_Dem ~
+             mid_penalty +
              Approve +
              incumbentparty +
-             perc_change +
              (1|chamdist))
 ```
 
