@@ -592,7 +592,7 @@ Calc_err <- function(formula = perc_Dem ~ perc_DemLag +
                      initial_lag = 12){
   n <- length(unique(Results1$year))
   n_predict <- n - initial_lag -1
-  RSS <- rep(NA, n = n_predict)
+  RSS <- rep(NA, times = n_predict)
   for(i in 1:n_predict){
     train <- Results1 %>%
       filter(year < min(Results1$year) + 2*(initial_lag + i) - 1)
@@ -604,13 +604,16 @@ Calc_err <- function(formula = perc_Dem ~ perc_DemLag +
                  perc_change +
                  (1|chamdist),
                data = train)
-    y1 <- predict(m1 , data = test)
-    y2 <- simulate(m1 , data = test)
-    RSS[i] <- sum((test$perc_Dem - y2$perc_Dem)^2)
+    y1 <- predict(m1 , data = test, na.rm = TRUE)
+    y2 <- simulate(m1 , data = test, na.rm = TRUE)
+    RSS[i] <- sum((test$perc_Dem - y2)^2, na.rm = TRUE)
   }
   mean(RSS)}
 
-Calc_err(m1)
+Calc_err(perc_Dem ~ perc_DemLag +
+                       incumbentparty +
+                       perc_change +
+                       (1|chamdist))
 ```
 
-    ## [1] 0
+    ## [1] 99.5438
