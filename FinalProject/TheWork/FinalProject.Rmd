@@ -347,12 +347,21 @@ HS16map
 ```
 
 ```{r}
-# Visualizing the relationship between econ-strength*prez_party and perc_Dem
+# Visualizing the relationship between Approve*prez_party and perc_Dem
+
+Results <- Results %>%
+  mutate(prez_partyname = ifelse(prez_party == 1, "Democrat", "Republican"))
 
 plot3 <- ggplot(Results, aes(y = perc_Dem, x = Approve)) +
-  geom_smooth(method = "lm") +
+  geom_smooth(method = "lm", aes(col = prez_partyname), se = FALSE) +
   geom_jitter() +
-  facet_grid(. ~ prez_party)
+  xlim(.3, .7) +
+  ylim(.3, .7) +
+  scale_colour_manual(values = c("blue", "red")) +
+  ylab("Proportion of votes won by Democrat") +
+  xlab("National presidential approval rating") +
+  labs(col = "President's party") +
+  ggtitle("Voting behavior vs presidential approval rating")
 plot3
 ```
 
@@ -510,7 +519,12 @@ Results1 <- Results %>%
 
 ```{r}
 
-Calc_err <- function(m1, initial_lag = 12){
+Calc_err <- function(formula = perc_Dem ~ perc_DemLag +
+                       incumbentparty +
+                       perc_change +
+                       (1|chamdist),
+                     data = train,
+                     initial_lag = 12){
   n <- length(unique(Results1$year))
   n_predict <- n - initial_lag -1
   RSS <- rep(NA, n = n_predict)
