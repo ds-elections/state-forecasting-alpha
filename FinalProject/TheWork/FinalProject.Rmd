@@ -225,7 +225,10 @@ HSshapefort <- fortify(HSshape, region = "NAME")
 ### Some visualizations
 
 ```{r}
-plot1 <- ggplot(Results, aes(y = Leg_Dem, x = Leg_Repub)) +
+
+legs <- subset(Results, !is.na(incumb_party_name))
+
+plot1 <- ggplot(legs, aes(y = Leg_Dem, x = Leg_Repub)) +
   geom_point(mapping = aes(col = incumb_party_name)) +
   scale_colour_manual(values = c("blue", "grey", "red")) +
   geom_abline(intercept = 0, slope = 1) +
