@@ -268,12 +268,10 @@ plot1 <- ggplot(Results, aes(y = Leg_Dem, x = Leg_Repub)) +
   geom_point(mapping = aes(col = incumb_party_name)) +
   scale_colour_manual(values = c("blue", "grey", "red")) +
   geom_abline(intercept = 0, slope = 1) +
-  scale_y_continuous(name = "Fluorescent intensity/arbitrary units",
+  scale_y_continuous(name = "Vote count for the Democrat",
                      labels = comma) +
-  scale_x_continuous(name = "Fluorescent intensity/arbitrary units",
+  scale_x_continuous(name = "Vote count for the Republican",
                      labels = comma) +
-  ylab("Vote count for the Democratic Candidate") +
-  xlab("Vote count for the Republican Candidate") +
   labs(col = "Incumbency status") +
   ggtitle("The incumbency effect")
 plot1
@@ -288,7 +286,7 @@ plot2 <- ggplot(Results, aes(y = perc_Dem, x = year)) +
   geom_abline(intercept = .5, slope = 0) +
   ggtitle("The incumbency effect over time") +
   xlab("Election") +
-  ylab("Percent of votes for Democrat") +
+  ylab("Proportion of votes won by the Democrat") +
   labs(col = "Incumbency status")
 plot2
 ```
