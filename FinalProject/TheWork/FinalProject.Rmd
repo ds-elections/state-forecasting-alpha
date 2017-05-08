@@ -229,6 +229,10 @@ plot1 <- ggplot(Results, aes(y = Leg_Dem, x = Leg_Repub)) +
   geom_point(mapping = aes(col = incumb_party_name)) +
   scale_colour_manual(values = c("blue", "grey", "red")) +
   geom_abline(intercept = 0, slope = 1) +
+  scale_y_continuous(name = "Fluorescent intensity/arbitrary units",
+                     labels = comma) +
+  scale_x_continuous(name = "Fluorescent intensity/arbitrary units",
+                     labels = comma) +
   ylab("Vote count for the Democratic Candidate") +
   xlab("Vote count for the Republican Candidate") +
   labs(col = "Incumbency status") +
@@ -365,7 +369,7 @@ m1 <- lmer(formula = perc_Dem ~
              incumbentparty +
              perc_change +
              (1|chamdist),
-           data = Results1)
+           data = Resultsmodel)
 AIC(m1)
 ```
 
