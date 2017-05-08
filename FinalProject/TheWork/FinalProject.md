@@ -301,33 +301,117 @@ plot2
 ```
 
 ``` r
-# Creating a subset of Results that only includes senatorial district voting totals in 2014.
+# Creating a subset of Results that only includes assembly district voting totals in 2014.
 
-SEN14 <- Results %>%
-  filter(year == 2014, chamber == "SEN")
+HS10 <- Results %>%
+  filter(year == 2010, chamber == "HS")
 
-SEN14map <- ggplot() +
-  geom_map(data = SEN14,
+HS10map <- ggplot() +
+  geom_map(data = HS10,
            aes(map_id = District, fill = perc_Dem),
-           map = SENshapefort) +
-  expand_limits(x = SENshapefort$long, y = SENshapefort$lat) +
+           map = HSshapefort) +
+  expand_limits(x = HSshapefort$long, y = HSshapefort$lat) +
   scale_fill_gradient2(low = muted("red"),
                        mid = "white", midpoint = .5,
                        high = muted("blue"),
                        limits = c(0, 1),
                        na.value = "grey") +
   labs(fill = "Proportion voting for a Democrat") +
-  ggtitle("Voting outcomes in the 2014 California State Senate Election")
-SEN14map
+  ggtitle("Results of the 2010 California State Assembly Election") +
+  theme(panel.background = element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank()) +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL)
+HS10map
 ```
 
 ![](FinalProject_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
 ``` r
+HS12 <- Results %>%
+  filter(year == 2012, chamber == "HS")
+
+HS12map <- ggplot() +
+  geom_map(data = HS12,
+           aes(map_id = District, fill = perc_Dem),
+           map = HSshapefort) +
+  expand_limits(x = HSshapefort$long, y = HSshapefort$lat) +
+  scale_fill_gradient2(low = muted("red"),
+                       mid = "white", midpoint = .5,
+                       high = muted("blue"),
+                       limits = c(0, 1),
+                       na.value = "grey") +
+  labs(fill = "Proportion voting for a Democrat") +
+  ggtitle("2012 results") +
+  theme(panel.background = element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank()) +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL)
+HS12map
+```
+
+![](FinalProject_files/figure-markdown_github/unnamed-chunk-10-2.png)
+
+``` r
+HS14 <- Results %>%
+  filter(year == 2014, chamber == "HS")
+
+HS14map <- ggplot() +
+  geom_map(data = HS14,
+           aes(map_id = District, fill = perc_Dem),
+           map = HSshapefort) +
+  expand_limits(x = HSshapefort$long, y = HSshapefort$lat) +
+  scale_fill_gradient2(low = muted("red"),
+                       mid = "white", midpoint = .5,
+                       high = muted("blue"),
+                       limits = c(0, 1),
+                       na.value = "grey") +
+  ggtitle("2014 results") +
+  labs(fill = "Proportion voting for a Democrat") +
+  theme(panel.background = element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank()) +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL)
+HS14map
+```
+
+![](FinalProject_files/figure-markdown_github/unnamed-chunk-10-3.png)
+
+``` r
+HS16 <- Results %>%
+  filter(year == 2016, chamber == "HS")
+
+HS16map <- ggplot() +
+  geom_map(data = HS16,
+           aes(map_id = District, fill = perc_Dem),
+           map = HSshapefort) +
+  expand_limits(x = HSshapefort$long, y = HSshapefort$lat) +
+  scale_fill_gradient2(low = muted("red"),
+                       mid = "white", midpoint = .5,
+                       high = muted("blue"),
+                       limits = c(0, 1),
+                       na.value = "grey") +
+  labs(fill = "Proportion voting for a Democrat") +
+  ggtitle("2016 results") +
+  theme(panel.background = element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank()) +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL)
+HS16map
+```
+
+![](FinalProject_files/figure-markdown_github/unnamed-chunk-10-4.png)
+
+``` r
 # Visualizing the relationship between econ-strength*prez_party and perc_Dem
 
-plot3 <- ggplot(Results, aes(y = perc_Dem, x = perc_change)) +
-  geom_smooth() +
+plot3 <- ggplot(Results, aes(y = perc_Dem, x = Approve)) +
+  geom_smooth(method = "lm") +
+  geom_jitter() +
   facet_grid(. ~ prez_party)
 plot3
 ```
