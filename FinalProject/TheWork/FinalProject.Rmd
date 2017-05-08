@@ -198,7 +198,8 @@ Results <- Results %>%
   mutate(perc_prez_Dem = Prez_Dem/(Prez_Dem + Prez_Repub),
          perc_sen_Dem = US_Sen_Dem/(US_Sen_Dem + US_Sen_Repub),
          perc_sen2_Dem = US_Sen2_Dem/(US_Sen2_Dem + US_Sen2_Repub),
-         perc_gub_Dem = Gub_Dem/(Gub_Dem + Gub_Repub))
+         perc_gub_Dem = Gub_Dem/(Gub_Dem + Gub_Repub),
+         Approve = Approve/100)
 
 
 ```
@@ -359,23 +360,13 @@ Resultsmodel <- Resultsmodel %>%
 ```
 
 ```{r, warning=FALSE, message=FALSE}
-m1 <- lmer(perc_Dem ~ incumbentparty + (Approve|prez_party), Resultsmodel)
-
-m3 <- lmer(perc_Dem ~
-             perc_DemLag + incumbentpartyLag +
-             (1|year/District) +
-             incumbentparty + (1 + incumbentparty|year),
-             Resultsmodel)
-
-# Added in a random intercept term which crosses percent votes for a senator and presidential approval rating 
-m4 <- lmer(perc_Dem ~
-             perc_DemLag + incumbentpartyLag + incumbentparty + 
-             (1|year/District) +
-             (1 + incumbentparty|year) +
-             (1|perc_sen_Dem/Approve),
-             Resultsmodel)
-AIC(m4)
-summary(m4)
+m1 <- lmer(formula = perc_Dem ~ 
+             perc_DemLag +
+             incumbentparty +
+             perc_change +
+             (1|chamdist),
+           data = Results1)
+AIC(m1)
 ```
 
 ```{r}
@@ -394,8 +385,6 @@ m6 <- lmer(perc_Dem ~
              Approve + (1 + Approve|year) +
              mid_penalty,
            data = Resultsmodel)
-AIC(m6)
-summary(m6)
 
 m7 <- lmer(perc_Dem ~
              (1 + perc_DemLag||chamdist) +
@@ -404,9 +393,7 @@ m7 <- lmer(perc_Dem ~
              incumbentparty + (1 + incumbentparty|year) +
              perc_change + 
              (1 + Approve|year),
-           data = Resultsmodel)
-AIC(m7)
-summary(m7) 
+           data = Resultsmodel) 
 ```
 
 ### Testing the model
@@ -446,17 +433,21 @@ Results1 <- Results %>%
 
 ```{r}
 
-Calc_err <- function(formula = m1, initial_lag = 20){
+Calc_err <- function(m1, initial_lag = 12){
   n <- length(unique(Results1$year))
-  n_predict <- n - initial_lag
-  RSS <- rep(NA, n=predict)
+  n_predict <- n - initial_lag -1
+  RSS <- rep(NA, n = n_predict)
   for(i in 1:n_predict){
     train <- Results1 %>%
-      filter(year < min(Results1$year) + initial_lag + 2*i)
+      filter(year < min(Results1$year) + 2*(initial_lag + i) - 1)
     test <- Results1 %>%
-      filter(year == 2000)
-    m1 <- lmer(formula = perc_Dem ~ (perc_change + Approve + (1|chamdist)), data = train)
-    
+      filter(year == min(Results1$year) + 2*(initial_lag + i))
+    m1 <- lmer(formula = perc_Dem ~
+                 perc_DemLag +
+                 incumbentparty +
+                 perc_change +
+                 (1|chamdist),
+               data = train)
     y1 <- predict(m1 , data = test)
     y2 <- simulate(m1 , data = test)
     RSS[i] <- sum((test$perc_Dem - y2$perc_Dem)^2)
