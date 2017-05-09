@@ -408,7 +408,7 @@ Resultsmodel <- Resultsmodel %>%
 ## New Model
 
 ```{r}
-# Still need chamdist to indefity unique districts
+# Still need chamdist to indentify unique districts
 
 Resultsmodel <- Resultsmodel %>%
   mutate(Approve = prez_party*Approve,
@@ -454,6 +454,18 @@ m4 <- lmer(perc_Dem ~
            data = Resultsmodel)
 # model 4 adds a weighted variable measuring prior voting behavior for the
 # presidential office
+
+m5 <- lmer(perc_Dem ~
+             mid_penalty +
+             Approve +
+             incumbentparty +
+             perc_prez_DemLag2 + 
+             perc_sen_DemLag +
+             (1 + perc_sen_DemLag|Approve) +
+             (1|chamdist),
+           data = Resultsmodel)
+
+# Tried Adding a term where perc_sen_DemLag is tied to the Approval Rating--led to seemingly better results than m4, but my concern is that midterm penalty already accounts for the effect that I'm looking for (which is that a lower or worse approval rating will decrease the slope for perc_sen_DemLag)
 ```
 
 ```{r}
@@ -463,6 +475,8 @@ Calc_err <- function(formula = perc_Dem ~
              mid_penalty +
              Approve +
              incumbentparty +
+               perc_sen_DemLag +
+             (1 + perc_sen_DemLag|Approve) +
              (1|chamdist),
                      data = train,
                      initial_lag = 12){
@@ -478,6 +492,8 @@ Calc_err <- function(formula = perc_Dem ~
              mid_penalty +
              Approve +
              incumbentparty +
+               perc_sen_DemLag +
+             (1 + perc_sen_DemLag|Approve) +
              (1|chamdist),
                data = train)
     y1 <- predict(m , data = test, na.rm = TRUE)
@@ -490,6 +506,8 @@ Calc_err(perc_Dem ~
              mid_penalty +
              Approve +
              incumbentparty +
+           perc_sen_DemLag +
+             (1 + perc_sen_DemLag|Approve) +
              (1|chamdist))
 ```
 
