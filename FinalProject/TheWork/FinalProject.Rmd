@@ -488,8 +488,6 @@ m7 <- lmer(perc_Dem ~
              (1|chamdist),
            data = Resultsmodel)
 
-summary(m7)
-
 # Adding perc_gub_DemLag as a fixed effect decreases the t-value of Approve.
 
 m8 <- lmer(perc_Dem ~
