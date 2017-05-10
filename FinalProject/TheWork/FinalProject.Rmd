@@ -482,9 +482,8 @@ m7 <- lmer(perc_Dem ~
              mid_penalty +
              Approve +
              incumbentparty +
-             p_prez_Dem_elec +
-             perc_sen_DemLag +
-             perc_gub_DemLag +
+             perc_prez_DemLag2 +
+             perc_change +
              (1|chamdist),
            data = Resultsmodel)
 
@@ -500,6 +499,7 @@ summary(m8)
 
 #Simpler model but t-values are higher
 ```
+
 
 ```{r}
 # Building a function to find MSE
@@ -541,10 +541,32 @@ Calc_err(perc_Dem ~
 ### Using the model to predict 2018 results
 
 ```{r}
-Results <- full_join(Results, df2018, by = c("year",
+Resultsfin <- full_join(Resultsmodel, df2018, by = c("year",
                                              "chamber",
                                              "District",
                                              "prez_party",
+                                             "incumbentparty",
                                              "mid_penalty"))
-```
+Resultsfin <- Resultsfin %>%
+  mutate(perc_changeLag = lag(perc_change, 120),
+         ApproveLag = lag(Approve, 120),
+         incumbentpartyLag = lag(incumbentparty, 120),
+         perc_DemLag = lag(perc_Dem, 120),
+         perc_prez_DemLag2 = (lag(perc_prez_Dem, 240) +
+                                2*lag(perc_prez_Dem, 120))/3,
+         perc_gub_DemLag = lag(perc_gub_Dem, 120),
+         perc_sen_DemLag = lag(perc_sen_Dem, 120),
+         Approve = Approve*prez_party,
+         chamdist = rep(1:120, times = 23))
 
+Resultsfin[c("incumbentparty",
+             "perc_sen_DemLag")][is.na(Resultsfin[c("incumbentparty",
+                                                     "perc_sen_DemLag")])] <- 0
+
+Results2018 <- Resultsfin %>%
+  filter(year == 2018)
+
+
+Resultsfin$simulated <- simulate(m8, seed=1,allow.new.levels = TRUE)
+
+```
