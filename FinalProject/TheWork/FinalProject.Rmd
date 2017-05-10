@@ -555,12 +555,6 @@ Resultsfin[c("incumbentparty",
              "perc_sen_DemLag")][is.na(Resultsfin[c("incumbentparty",
                                                      "perc_sen_DemLag")])] <- 0
 
-sim2018 <- sim2018 %>% 
-  mutate(perc_Dem = sim_1, 
-         chamdist = rep(1:120, times = 1),
-         year = rep(2018)) %>%
-  select(year, chamdist, perc_Dem)
-
 Resultsfin$sim <- simulate(m8, re.form=NA, allow.new.levels = TRUE, newdata = Resultsfin)$sim_1
 
 Results2018 <- Resultsfin %>%
