@@ -567,6 +567,6 @@ Results2018 <- Resultsfin %>%
   filter(year == 2018)
 
 
-Resultsfin$simulated <- simulate(m8, seed=1,allow.new.levels = TRUE)
+simulate(m8, seed=2, allow.new.levels = TRUE, newdata = Results2018)
 
 ```
