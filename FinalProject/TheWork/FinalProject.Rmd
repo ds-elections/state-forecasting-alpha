@@ -383,21 +383,7 @@ Results <- Results %>%
 Results["perc_prez_DemLag2"][is.na(Results["perc_prez_DemLag2"])] <- 0
 Resultsmodel <- Results
 
-Resultsmodel["incumbentparty"][is.na(Resultsmodel["incumbentparty"])] <- 0
-Resultsmodel[c("perc_Dem",
-          "perc_Repub",
-          "perc_prez_Dem",
-          "perc_sen_Dem",
-          "perc_sen2_Dem",
-          "perc_gub_Dem",
-          "perc_prez_DemLag")][is.na(Resultsmodel[c("perc_Dem",
-                                           "perc_Repub",
-                                           "perc_prez_Dem",
-                                           "perc_sen_Dem",
-                                           "perc_sen2_Dem",
-                                           "perc_gub_Dem",
-                                           "perc_prez_DemLag")])] <- .0
-Resultsmodel["Leg_winner"][is.na(Resultsmodel["Leg_winner"])] <- "No election"
+
 
 Resultsmodel <- Resultsmodel %>%
   mutate(perc_prez_DemLag2 = (lag(perc_prez_Dem, 240) +
@@ -541,9 +527,7 @@ Calc_err(perc_Dem ~
 ### Using the model to predict 2018 results
 
 ```{r}
-Resultsmodel[c("incumbentparty",
-             "perc_sen_DemLag")][is.na(Resultsmodel[c("incumbentparty",
-                                                     "perc_sen_DemLag")])] <- 0
+
 Resultsfin <- full_join(Resultsmodel, df2018, by = c("year",
                                              "chamber",
                                              "chamdist",
@@ -555,7 +539,11 @@ Resultsfin[c("incumbentparty",
              "perc_sen_DemLag")][is.na(Resultsfin[c("incumbentparty",
                                                      "perc_sen_DemLag")])] <- 0
 
-Resultsfin$sim <- simulate(m8, re.form=NA, allow.new.levels = TRUE, newdata = Resultsfin)$sim_1
+Resultsfin$sim <- simulate(m8,
+                           seed = 23,
+                           re.form=NA,
+                           allow.new.levels = TRUE,
+                           newdata = Resultsfin)$sim_1
 
 Results2018 <- Resultsfin %>%
   filter(year == 2018,
@@ -563,13 +551,81 @@ Results2018 <- Resultsfin %>%
                          108, 110, 112, 114, 116, 118, 120))
 
 Dems2018 <- Results2018 %>%
-  filter(sim >.5)
-
+  filter(sim >.5,
+         Legparty == -1)
+Reps2018 <- Results2018 %>%
+  filter(sim<.5,
+         Legparty == 1)
 bp <- ggplot(Results2018) +
   geom_boxplot(aes(y = sim, x = as.factor(incumbentparty)))
 bp
 
-trend <- ggplot(Resultsfin) +
-  geom_smooth(aes(y = perc_Dem, x = sim))
-trend
+# bp is a boxplot of our predicted results grouped by incumbency
 ```
+
+```{r}
+# Importing the last remaining senatorial districts for map plot
+lastresults <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/2018LastDistricts.xlsx")
+
+```
+
+
+### 2018 maps
+
+```{r}
+HS18 <- Results2018 %>%
+  filter(year == 2018,
+         chamber == "HS") %>%
+  mutate(District = chamdist)
+HS18$sim[HS18$sim<0] <- 0
+HS18$sim[HS18$sim>1] <- 1
+
+HS18map <- ggplot() +
+  geom_map(data = HS18,
+           aes(map_id = District, fill = sim),
+           map = HSshapefort) +
+  expand_limits(x = HSshapefort$long, y = HSshapefort$lat) +
+  scale_fill_gradient2(low = muted("red"),
+                       mid = "white", midpoint = .5,
+                       high = muted("blue"),
+                       limits = c(0, 1),
+                       na.value = "grey") +
+  labs(fill = "Proportion voting for a Democrat") +
+  ggtitle("Forecasting 2018 assembly results") +
+  theme(panel.background = element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank()) +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL)
+HS18map
+
+SEN18 <- Results2018 %>%
+  filter(year == 2018,
+         chamber == "SEN") %>%
+  mutate(District = chamdist - 80)
+SEN18$sim[SEN18$sim<0] <- 0
+SEN18$sim[SEN18$sim>1] <- 1
+SEN18 <- full_join(SEN18, lastresults, by = c("year",
+                                              "chamber",
+                                              "District"))
+
+SEN18map <- ggplot() +
+  geom_map(data = SEN18,
+           aes(map_id = District, fill = sim),
+           map = HSshapefort) +
+  expand_limits(x = HSshapefort$long, y = HSshapefort$lat) +
+  scale_fill_gradient2(low = muted("red"),
+                       mid = "white", midpoint = .5,
+                       high = muted("blue"),
+                       limits = c(0, 1),
+                       na.value = "grey") +
+  labs(fill = "Proportion voting for a Democrat") +
+  ggtitle("Forecasting 2018 senatorial results") +
+  theme(panel.background = element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank()) +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL)
+SEN18map
+```
+

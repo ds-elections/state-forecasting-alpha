@@ -1,6 +1,6 @@
 Forecasting the 2018 California Legislative Election
 ================
-EJ Arce
+EJ Arce and Jonathan Matz
 4/2/2017
 
 ### Importing election results data
@@ -36,9 +36,6 @@ LegResults6814$party <- ifelse(LegResults6814$party == 100, "Dem", "Repub")
 LegResults6814 <- aggregate(x = LegResults6814["votes"], by = LegResults6814[c("year", "chamber", "District", "party", "incumbency")], sum)
 
 # Coding dummy variables prez_party (1 if the president is a Democrat, -1 if the president is a Republican) and mid_penalty (1 if the president is a Democrat, -1 if the president is a Republican, 0 if the year includes a presidential election).
-
-threeoffices$prez_party <- ifelse(threeoffices$year %in% c(1968, 1978,1980,1994,1996,1998,2000,2010,2012,2014,2016), 1, -1)
-threeoffices$mid_penalty <- ifelse(threeoffices$year %in% c(1968,1972,1976,1980,1984,1988,1992,1996,2000,2004,2008,2012, 2016), 0, ifelse(LegResults6814$year %in% c(1970,1974,1982,1986,1990,2002,2006), -1, 1))
 
 # Coding for dummy variable incumbent (1 if the seat up for election is held by a democrat, -1 if held by a Republican, 0 if the seat is open).
 
@@ -124,7 +121,7 @@ Our dataset on voting totals for presidential, gubernatorial, and US Senate offi
 threeoffices <- threeoffices %>%
   filter(Dummy1 == 1,
          year > 1972) %>%
-  select(year, chamber, dist, (17:24), prez_party, mid_penalty) %>%
+  select(year, chamber, dist, (17:24)) %>%
   rename(District = dist)
 ```
 
@@ -176,13 +173,7 @@ Results <- left_join(Results, PrezApprove, by = "year")
 df2018 <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/2018template.xlsx")
 
 df2018 <- df2018 %>%
-  mutate(prez_party = -1, mid_penalty = 1)
-
-Results <- full_join(Results, df2018, by = c("year",
-                                             "chamber",
-                                             "District",
-                                             "prez_party",
-                                             "mid_penalty"))
+  mutate(prez_party = -1, mid_penalty = -1)
 
 # Adding another incumbent variable, this time to explicitly describe which party holds the incumbency. Also adding a categorical variable Leg_winner to represent which party captured the legislative seat.
 
@@ -198,6 +189,9 @@ Results <- Results %>%
          perc_sen2_Dem = US_Sen2_Dem/(US_Sen2_Dem + US_Sen2_Repub),
          perc_gub_Dem = Gub_Dem/(Gub_Dem + Gub_Repub),
          Approve = Approve/100)
+
+Results$prez_party <- ifelse(Results$year %in% c(1968, 1978,1980,1994,1996,1998,2000,2010,2012,2014,2016), 1, -1)
+Results$mid_penalty <- ifelse(Results$year %in% c(1968,1972,1976,1980,1984,1988,1992,1996,2000,2004,2008,2012, 2016), 0, ifelse(Results$year %in% c(1970,1974,1982,1986,1990,2002,2006), -1, 1))
 ```
 
 ### Fully clean dataset
@@ -220,34 +214,34 @@ head(Results)
     ## 4         -1       NA         NA   43442     38605      54781        25016
     ## 5          1       NA         NA   42013     38264      50049        27862
     ## 6          0       NA         NA   49335     43671      59964        30545
-    ##   US_Sen2_Dem US_Sen2_Repub prez_party mid_penalty      I     II    III
-    ## 1          NA            NA         -1           1 1204.4 1230.4 1266.6
-    ## 2          NA            NA         -1           1 1204.4 1230.4 1266.6
-    ## 3          NA            NA         -1           1 1204.4 1230.4 1266.6
-    ## 4          NA            NA         -1           1 1204.4 1230.4 1266.6
-    ## 5          NA            NA         -1           1 1204.4 1230.4 1266.6
-    ## 6          NA            NA         -1          -1 1204.4 1230.4 1266.6
-    ##     IV I_IIpercent II_IIIpercent III_IVpercent IV_Ipercent perc_change
-    ## 1 1296  0.02158751    0.02440763    0.03321739  0.01363407  0.02228786
-    ## 2 1296  0.02158751    0.02440763    0.03321739  0.01363407  0.02228786
-    ## 3 1296  0.02158751    0.02440763    0.03321739  0.01363407  0.02228786
-    ## 4 1296  0.02158751    0.02440763    0.03321739  0.01363407  0.02228786
-    ## 5 1296  0.02158751    0.02440763    0.03321739  0.01363407  0.02228786
-    ## 6 1296  0.02158751    0.02440763    0.03321739  0.01363407  0.02228786
-    ##   Approve incumb_party_name Leg_winner  perc_Dem perc_Repub perc_prez_Dem
-    ## 1    0.54              <NA>       <NA>        NA         NA            NA
-    ## 2    0.54              <NA>       <NA>        NA         NA            NA
-    ## 3    0.54      No incumbent  Democract 1.0000000  0.0000000            NA
-    ## 4    0.54      No incumbent Republican 0.0000000  1.0000000            NA
-    ## 5    0.54      No incumbent  Democract 1.0000000  0.0000000            NA
-    ## 6    0.54          Democrat  Democract 0.6997406  0.3002594            NA
-    ##   perc_sen_Dem perc_sen2_Dem perc_gub_Dem
-    ## 1    0.6039872            NA    0.5208187
-    ## 2    0.6592416            NA    0.5506241
-    ## 3    0.5830482            NA    0.4643816
-    ## 4    0.6865045            NA    0.5294770
-    ## 5    0.6423868            NA    0.5233504
-    ## 6    0.6625197            NA    0.5304496
+    ##   US_Sen2_Dem US_Sen2_Repub      I     II    III   IV I_IIpercent
+    ## 1          NA            NA 1204.4 1230.4 1266.6 1296  0.02158751
+    ## 2          NA            NA 1204.4 1230.4 1266.6 1296  0.02158751
+    ## 3          NA            NA 1204.4 1230.4 1266.6 1296  0.02158751
+    ## 4          NA            NA 1204.4 1230.4 1266.6 1296  0.02158751
+    ## 5          NA            NA 1204.4 1230.4 1266.6 1296  0.02158751
+    ## 6          NA            NA 1204.4 1230.4 1266.6 1296  0.02158751
+    ##   II_IIIpercent III_IVpercent IV_Ipercent perc_change Approve
+    ## 1    0.02440763    0.03321739  0.01363407  0.02228786    0.54
+    ## 2    0.02440763    0.03321739  0.01363407  0.02228786    0.54
+    ## 3    0.02440763    0.03321739  0.01363407  0.02228786    0.54
+    ## 4    0.02440763    0.03321739  0.01363407  0.02228786    0.54
+    ## 5    0.02440763    0.03321739  0.01363407  0.02228786    0.54
+    ## 6    0.02440763    0.03321739  0.01363407  0.02228786    0.54
+    ##   incumb_party_name Leg_winner  perc_Dem perc_Repub perc_prez_Dem
+    ## 1              <NA>       <NA>        NA         NA            NA
+    ## 2              <NA>       <NA>        NA         NA            NA
+    ## 3      No incumbent  Democract 1.0000000  0.0000000            NA
+    ## 4      No incumbent Republican 0.0000000  1.0000000            NA
+    ## 5      No incumbent  Democract 1.0000000  0.0000000            NA
+    ## 6          Democrat  Democract 0.6997406  0.3002594            NA
+    ##   perc_sen_Dem perc_sen2_Dem perc_gub_Dem prez_party mid_penalty
+    ## 1    0.6039872            NA    0.5208187         -1          -1
+    ## 2    0.6592416            NA    0.5506241         -1          -1
+    ## 3    0.5830482            NA    0.4643816         -1          -1
+    ## 4    0.6865045            NA    0.5294770         -1          -1
+    ## 5    0.6423868            NA    0.5233504         -1          -1
+    ## 6    0.6625197            NA    0.5304496         -1          -1
 
 ### Importing CA shapefiles
 
@@ -436,184 +430,304 @@ Create a Mixed Effects Model
 # changes under a new dataset Resultsmodel. Also, we will code for lagged
 # variables, which include observations for each variable from the previous
 # election.
-
+Results["perc_prez_Dem"][is.na(Results["perc_prez_Dem"])] <- 0
 Results <- Results %>%
   mutate(perc_changeLag = lag(perc_change, 120),
          ApproveLag = lag(Approve, 120),
          incumbentpartyLag = lag(incumbentparty, 120),
          perc_DemLag = lag(perc_Dem, 120),
-         perc_prez_DemLag = lag(perc_prez_Dem, 120),
+         perc_prez_DemLag2 = (lag(perc_prez_Dem, 240) +
+                                2*lag(perc_prez_Dem, 120))/3,
          perc_gub_DemLag = lag(perc_gub_Dem, 120),
-         perc_sen_DemLag = lag(perc_sen_Dem, 120))
+         perc_sen_DemLag = lag(perc_sen_Dem, 120),
+         Approve = Approve*prez_party,
+         chamdist = rep(1:120, times = 22))
+Results["perc_prez_DemLag2"][is.na(Results["perc_prez_DemLag2"])] <- 0
+Resultsmodel <- Results
 
-Resultsmodel <- Results %>%
-  mutate(perc_changeLag = lag(perc_change, 120),
-         ApproveLag = lag(Approve, 120),
-         incumbentpartyLag = lag(incumbentparty, 120),
-         perc_DemLag = lag(perc_Dem, 120),
-         perc_prez_DemLag = lag(perc_prez_Dem, 120),
-         perc_gub_DemLag = lag(perc_gub_Dem, 120),
-         perc_sen_DemLag = lag(perc_sen_Dem, 120))
 
-Resultsmodel[c("Leg_Dem",
-          "Leg_Repub",
-          "Prez_Dem",
-          "Prez_Repub",
-          "incumbency",
-          "incumbentparty",
-          "dummyparty",
-          "Gub_Dem",
-          "Gub_Repub",
-          "US_Sen_Dem",
-          "US_Sen_Repub",
-          "US_Sen2_Dem",
-          "US_Sen2_Repub")][is.na(Resultsmodel[c("Leg_Dem",
-                                      "Leg_Repub",
-                                      "Prez_Dem",
-                                      "Prez_Repub",
-                                      "incumbency",
-                                      "incumbentparty",
-                                      "dummyparty",
-                                      "Gub_Dem",
-                                      "Gub_Repub",
-                                      "US_Sen_Dem",
-                                      "US_Sen_Repub",
-                                      "US_Sen2_Dem",
-                                      "US_Sen2_Repub")])] <- 0
-Resultsmodel[c("perc_Dem",
-          "perc_Repub",
-          "perc_prez_Dem",
-          "perc_sen_Dem",
-          "perc_sen2_Dem",
-          "perc_gub_Dem",
-          "perc_prez_DemLag",
-          "perc_gub_DemLag",
-          "perc_sen_DemLag")][is.na(Resultsmodel[c("perc_Dem",
-                                           "perc_Repub",
-                                           "perc_prez_Dem",
-                                           "perc_sen_Dem",
-                                           "perc_sen2_Dem",
-                                           "perc_gub_Dem",
-                                           "perc_prez_DemLag",
-                                           "perc_gub_DemLag",
-                                           "perc_sen_DemLag")])] <- .0
-Resultsmodel["Leg_winner"][is.na(Resultsmodel["Leg_winner"])] <- "No election"
 
 Resultsmodel <- Resultsmodel %>%
-  mutate(mid_penalty = prez_party*mid_penalty,
-         Approve = prez_party*Approve) %>%
-  mutate(chamdist = rep(1:120, times = 23))
+  mutate(perc_prez_DemLag2 = (lag(perc_prez_Dem, 240) +
+                                2*lag(perc_prez_Dem, 120))/3,
+         perc_change = perc_change*prez_party)
 ```
-
-``` r
-m1 <- lmer(formula = perc_Dem ~ 
-             perc_DemLag +
-             incumbentparty +
-             perc_change +
-             (1|chamdist),
-           data = Resultsmodel)
-AIC(m1)
-```
-
-    ## [1] 989.3983
-
-``` r
-# Added perc_changeLag as fixed effect, and changed three offices covariates
-# to lagged variables. This rose the AIC but is necessary because we are using
-# last election's results to predict the next one.
-
-m6 <- lmer(perc_Dem ~
-             perc_DemLag + (1 + perc_DemLag|chamdist) +
-             perc_prez_DemLag +
-             perc_gub_DemLag +
-             perc_sen_DemLag +
-             incumbentpartyLag +
-             incumbentparty + (1 + incumbentparty|year) +
-             perc_change + 
-             Approve + (1 + Approve|year) +
-             mid_penalty,
-           data = Resultsmodel)
-
-m7 <- lmer(perc_Dem ~
-             (1 + perc_DemLag||chamdist) +
-             perc_prez_DemLag +
-             incumbentpartyLag +
-             incumbentparty + (1 + incumbentparty|year) +
-             perc_change + 
-             (1 + Approve|year),
-           data = Resultsmodel) 
-```
-
-### Testing the model
-
-``` r
-# Creating two datasets; one to build the model, and one to test the model.
-set.seed(23)
-train_indeces <- sample(1:nrow(Resultsmodel), size = 1380, replace = FALSE)
-default_train <- slice(Resultsmodel, train_indeces)
-default_test <- slice(Resultsmodel, -train_indeces)
-```
-
-``` r
-y6 <- predict(m6, newdata = default_test, type = "response", allow.new.levels = TRUE)
-default_test <- default_test %>%
-  mutate(p_hat6 = y6, pred_default6 = p_hat6 >.5)
-confusion_mat6 <- default_test %>%
-  group_by(perc_Dem, pred_default6) %>%
-  tally()
-false_pos6 <- confusion_mat6[2, 3]
-false_neg6 <- confusion_mat6[4, 3]
-total_obs6 <- nrow(default_test)
-mcr6 <- (false_pos6 + false_neg6)/total_obs6
-mcr6
-```
-
-    ##             n
-    ## 1 0.001449275
 
 New Model
 ---------
 
 ``` r
-# Still need chamdist to indefity unique districts
+# Still need chamdist to indentify unique districts
 
-Results1 <- Results %>%
-  mutate(mid_penalty = prez_party*mid_penalty,
-         Approve = prez_party*Approve) %>%
-  mutate(chamdist = rep(1:120, times = 23))
+Resultsmodel <- Resultsmodel %>%
+  mutate(Approve = prez_party*Approve,
+         prez_elec = ifelse(year %in% c(1976, 1980, 1984, 1988, 1992, 1996,
+                                        2000, 2004, 2008, 2012, 2016), 1, 0),
+         p_prez_Dem_elec = perc_prez_Dem*prez_elec)
 ```
 
 ``` r
-Calc_err <- function(formula = perc_Dem ~ perc_DemLag +
-                       incumbentparty +
-                       perc_change +
-                       (1|chamdist),
-                     data = train,
-                     initial_lag = 12){
-  n <- length(unique(Results1$year))
+# Models ranging from simple to complex
+m1 <- lmer(perc_Dem ~
+             incumbentparty +
+             perc_change +
+             (1|chamdist),
+           data = Resultsmodel)
+
+m2 <- lmer(perc_Dem ~
+             Approve +
+             incumbentparty +
+             perc_change +
+             (1|chamdist),
+           data = Resultsmodel)
+
+m3 <- lmer(perc_Dem ~
+             perc_DemLag +
+             Approve +
+             incumbentparty +
+             perc_change +
+             (1|chamdist),
+           data = Resultsmodel)
+
+# m3 added a lagged vote for legislative offices the previous year, but this is
+# not looking like a better model. The coefficient for this variable was
+# negative which is not what we expect. One reason this variable might not
+# be a good predictor is because many observations have NAs.
+
+m4 <- lmer(perc_Dem ~
+             mid_penalty +
+             Approve +
+             incumbentparty +
+             perc_prez_DemLag2 +
+             (1|chamdist),
+           data = Resultsmodel)
+# model 4 adds a weighted variable measuring prior voting behavior for the
+# presidential office
+
+m5 <- lmer(perc_Dem ~
+             mid_penalty +
+             Approve +
+             incumbentparty +
+             perc_prez_DemLag2 + 
+             perc_sen_DemLag +
+             (1 + perc_sen_DemLag|Approve) +
+             (1|chamdist),
+           data = Resultsmodel)
+
+# Tried Adding a term where perc_sen_DemLag is tied to the Approval Rating--led to seemingly better results than m4, but my concern is that midterm penalty already accounts for the effect that I'm looking for (which is that a lower or worse approval rating will decrease the slope for perc_sen_DemLag). However, t value is low for perc_sen_DemLag and perc_prez_DemLag2, so let's try again...
+
+m6 <- lmer(perc_Dem ~
+             mid_penalty +
+             Approve +
+             incumbentparty +
+             perc_prez_DemLag2 +
+             perc_sen_DemLag +
+             (1|chamdist),
+           data = Resultsmodel)
+
+# perc_prez_DemLag2 always seems to have a low t-value
+
+m7 <- lmer(perc_Dem ~
+             mid_penalty +
+             Approve +
+             incumbentparty +
+             perc_prez_DemLag2 +
+             perc_change +
+             (1|chamdist),
+           data = Resultsmodel)
+
+# Adding perc_gub_DemLag as a fixed effect decreases the t-value of Approve.
+
+m8 <- lmer(perc_Dem ~
+             mid_penalty +
+             incumbentparty +
+             perc_sen_DemLag +
+             (1|chamdist),
+           data = Resultsmodel)
+summary(m8)
+```
+
+    ## Linear mixed model fit by REML ['lmerMod']
+    ## Formula: perc_Dem ~ mid_penalty + incumbentparty + perc_sen_DemLag + (1 |  
+    ##     chamdist)
+    ##    Data: Resultsmodel
+    ## 
+    ## REML criterion at convergence: 574.3
+    ## 
+    ## Scaled residuals: 
+    ##     Min      1Q  Median      3Q     Max 
+    ## -1.9008 -0.6554  0.1190  0.6470  1.7071 
+    ## 
+    ## Random effects:
+    ##  Groups   Name        Variance Std.Dev.
+    ##  chamdist (Intercept) 0.003337 0.05777 
+    ##  Residual             0.101579 0.31871 
+    ## Number of obs: 957, groups:  chamdist, 120
+    ## 
+    ## Fixed effects:
+    ##                 Estimate Std. Error t value
+    ## (Intercept)      0.43504    0.04686   9.285
+    ## mid_penalty     -0.02445    0.01459  -1.676
+    ## incumbentparty   0.27936    0.01667  16.757
+    ## perc_sen_DemLag  0.13329    0.08159   1.634
+    ## 
+    ## Correlation of Fixed Effects:
+    ##             (Intr) md_pnl incmbn
+    ## mid_penalty -0.088              
+    ## incmbntprty  0.359 -0.130       
+    ## prc_sn_DmLg -0.967  0.106 -0.412
+
+``` r
+#Simpler model but t-values are higher
+```
+
+``` r
+# Building a function to find MSE
+
+Calc_err <- function(formula = perc_Dem ~
+             mid_penalty +
+             incumbentparty +
+             perc_sen_DemLag +
+             (1|chamdist),
+             data = train,
+             initial_lag = 12){
+  n <- length(unique(Resultsmodel$year))
   n_predict <- n - initial_lag -1
   RSS <- rep(NA, times = n_predict)
   for(i in 1:n_predict){
-    train <- Results1 %>%
-      filter(year < min(Results1$year) + 2*(initial_lag + i) - 1)
-    test <- Results1 %>%
-      filter(year == min(Results1$year) + 2*(initial_lag + i))
-    m1 <- lmer(formula = perc_Dem ~
-                 perc_DemLag +
-                 incumbentparty +
-                 perc_change +
-                 (1|chamdist),
+    train <- Results %>%
+      filter(year < min(Resultsmodel$year) + 2*(initial_lag + i) - 1)
+    test <- Results %>%
+      filter(year == min(Resultsmodel$year) + 2*(initial_lag + i))
+    m <- lmer(formula = perc_Dem ~
+             mid_penalty +
+             incumbentparty +
+             perc_sen_DemLag +
+             (1|chamdist),
                data = train)
-    y1 <- predict(m1 , data = test, na.rm = TRUE)
-    y2 <- simulate(m1 , data = test, na.rm = TRUE)
+    y1 <- predict(m , data = test, na.rm = TRUE)
+    y2 <- simulate(m , data = test, na.rm = TRUE)
     RSS[i] <- sum((test$perc_Dem - y2)^2, na.rm = TRUE)
   }
   mean(RSS)}
 
-Calc_err(perc_Dem ~ perc_DemLag +
-                       incumbentparty +
-                       perc_change +
-                       (1|chamdist))
+Calc_err(perc_Dem ~
+             mid_penalty +
+             incumbentparty +
+             perc_sen_DemLag +
+             (1|chamdist))
 ```
 
-    ## [1] 99.5438
+    ## [1] 130.1011
+
+### Using the model to predict 2018 results
+
+``` r
+Resultsfin <- full_join(Resultsmodel, df2018, by = c("year",
+                                             "chamber",
+                                             "chamdist",
+                                             "prez_party",
+                                             "incumbentparty",
+                                             "mid_penalty"))
+
+Resultsfin[c("incumbentparty",
+             "perc_sen_DemLag")][is.na(Resultsfin[c("incumbentparty",
+                                                     "perc_sen_DemLag")])] <- 0
+
+Resultsfin$sim <- simulate(m8,
+                           seed = 23,
+                           re.form=NA,
+                           allow.new.levels = TRUE,
+                           newdata = Resultsfin)$sim_1
+
+Results2018 <- Resultsfin %>%
+  filter(year == 2018,
+         chamdist %in% c(1:80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100, 102, 104, 106,
+                         108, 110, 112, 114, 116, 118, 120))
+
+Dems2018 <- Results2018 %>%
+  filter(sim >.5,
+         Legparty == -1)
+Reps2018 <- Results2018 %>%
+  filter(sim<.5,
+         Legparty == 1)
+bp <- ggplot(Results2018) +
+  geom_boxplot(aes(y = sim, x = as.factor(incumbentparty)))
+bp
+```
+
+![](FinalProject_files/figure-markdown_github/unnamed-chunk-16-1.png)
+
+``` r
+# bp is a boxplot of our predicted results grouped by incumbency
+```
+
+``` r
+# Importing the last remaining senatorial districts for map plot
+lastresults <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/2018LastDistricts.xlsx")
+```
+
+### 2018 maps
+
+``` r
+HS18 <- Results2018 %>%
+  filter(year == 2018,
+         chamber == "HS") %>%
+  mutate(District = chamdist)
+HS18$sim[HS18$sim<0] <- 0
+HS18$sim[HS18$sim>1] <- 1
+
+HS18map <- ggplot() +
+  geom_map(data = HS18,
+           aes(map_id = District, fill = sim),
+           map = HSshapefort) +
+  expand_limits(x = HSshapefort$long, y = HSshapefort$lat) +
+  scale_fill_gradient2(low = muted("red"),
+                       mid = "white", midpoint = .5,
+                       high = muted("blue"),
+                       limits = c(0, 1),
+                       na.value = "grey") +
+  labs(fill = "Proportion voting for a Democrat") +
+  ggtitle("Forecasting 2018 assembly results") +
+  theme(panel.background = element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank()) +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL)
+HS18map
+```
+
+![](FinalProject_files/figure-markdown_github/unnamed-chunk-18-1.png)
+
+``` r
+SEN18 <- Results2018 %>%
+  filter(year == 2018,
+         chamber == "SEN") %>%
+  mutate(District = chamdist - 80)
+SEN18$sim[SEN18$sim<0] <- 0
+SEN18$sim[SEN18$sim>1] <- 1
+SEN18 <- full_join(SEN18, lastresults, by = c("year",
+                                              "chamber",
+                                              "District"))
+
+SEN18map <- ggplot() +
+  geom_map(data = SEN18,
+           aes(map_id = District, fill = sim),
+           map = HSshapefort) +
+  expand_limits(x = HSshapefort$long, y = HSshapefort$lat) +
+  scale_fill_gradient2(low = muted("red"),
+                       mid = "white", midpoint = .5,
+                       high = muted("blue"),
+                       limits = c(0, 1),
+                       na.value = "grey") +
+  labs(fill = "Proportion voting for a Democrat") +
+  ggtitle("Forecasting 2018 senatorial results") +
+  theme(panel.background = element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank()) +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL)
+SEN18map
+```
+
+![](FinalProject_files/figure-markdown_github/unnamed-chunk-18-2.png)
