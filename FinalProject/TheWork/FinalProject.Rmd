@@ -570,8 +570,9 @@ Results2018 <- Resultsfin %>%
 sim2018 <- simulate(m8, seed=2, allow.new.levels = TRUE, newdata = Results2018)
 
 sim2018 <- sim2018 %>% 
-  mutate(perc_Dem = sim_1) %>%
-  select(perc_Dem)
+  mutate(perc_Dem = sim_1, 
+         chamdist = rep(1:120, times = 1)) %>%
+  select(chamdist, perc_Dem)
 
 sim2018
 ```
