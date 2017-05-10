@@ -541,38 +541,38 @@ Calc_err(perc_Dem ~
 ### Using the model to predict 2018 results
 
 ```{r}
+Resultsmodel[c("incumbentparty",
+             "perc_sen_DemLag")][is.na(Resultsmodel[c("incumbentparty",
+                                                     "perc_sen_DemLag")])] <- 0
 Resultsfin <- full_join(Resultsmodel, df2018, by = c("year",
                                              "chamber",
-                                             "District",
+                                             "chamdist",
                                              "prez_party",
                                              "incumbentparty",
                                              "mid_penalty"))
-Resultsfin <- Resultsfin %>%
-  mutate(perc_changeLag = lag(perc_change, 120),
-         ApproveLag = lag(Approve, 120),
-         incumbentpartyLag = lag(incumbentparty, 120),
-         perc_DemLag = lag(perc_Dem, 120),
-         perc_prez_DemLag2 = (lag(perc_prez_Dem, 240) +
-                                2*lag(perc_prez_Dem, 120))/3,
-         perc_gub_DemLag = lag(perc_gub_Dem, 120),
-         perc_sen_DemLag = lag(perc_sen_Dem, 120),
-         Approve = Approve*prez_party,
-         chamdist = rep(1:120, times = 23))
 
 Resultsfin[c("incumbentparty",
              "perc_sen_DemLag")][is.na(Resultsfin[c("incumbentparty",
                                                      "perc_sen_DemLag")])] <- 0
 
+
+
+
+Resultsfin$sim <- simulate(m8, re.form=NA, allow.new.levels = TRUE, newdata = Resultsfin)$sim_1
+
 Results2018 <- Resultsfin %>%
-  filter(year == 2018)
+  filter(year == 2018,
+         chamdist %in% c(1:80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100, 102, 104, 106,
+                         108, 110, 112, 114, 116, 118, 120))
 
+Dems2018 <- Results2018 %>%
+  filter(sim >.5)
 
-sim2018 <- simulate(m8, seed=2, allow.new.levels = TRUE, newdata = Results2018)
+bp <- ggplot(Results2018) +
+  geom_boxplot(aes(y = sim, x = as.factor(incumbentparty)))
+bp
 
-sim2018 <- sim2018 %>% 
-  mutate(perc_Dem = sim_1, 
-         chamdist = rep(1:120, times = 1)) %>%
-  select(chamdist, perc_Dem)
-
-sim2018
+trend <- ggplot(Resultsfin) +
+  geom_smooth(aes(y = perc_Dem, x = sim))
+trend
 ```
