@@ -1,6 +1,6 @@
 Deliverables
 ================
-EJ Arce
+EJ Arce and Jonathan Matz
 5/4/2017
 
 Forecasting California legislative election results
@@ -10,7 +10,7 @@ Forecasting elections is critical to the campaign strategies of candidates runni
 
 There are two types of state legislative elections: state senatorial elections and house elections. The state of California (along with every other state) is divided up into two types of districts for these elections: assembly and senatorial districts. California has 80 assembly (house) districts and 40 senatorial districts. Each assembly district elects an assemblymember every two years and each senatorial district elects a senator every four years. Like some state national elections (e.g. US senatorial and gubernatorial elections), these elections take place every November of an even year. However, unlike some national elections (i.e. the presidential campaigns), the popular vote of the given district determines the winner of the race and because the political campaign takes place within a single district, there is not as big a need to allocate resources per se or focus on areas where the votes/delegates could go either way. However, these elections are not so simple...
 
-The boundaries of both the state and assembly districts are redrawn every ten years according to Article XXI in the California Constitution (see citation below). While this may not play a major role in districts with fairly consistent voting tendencies, this boundary changing may be highly influential in areas with random dispersals of Republicans and Democrats (or Purple districts). While voting tendencies do change at the national level due to economic conditions or a change in population, this certainly one of the more unique aspects of state legislative elections.
+The boundaries of both the state and assembly districts are redrawn every ten years according to Article XXI in the California Constitution (see citation below). While this may not play a major role in districts with fairly consistent voting tendencies, this boundary changing may be highly influential in areas with random dispersals of Republicans and Democrats (or Purple/ambiguous districts). While voting tendencies do change at the national level due to economic conditions or a change in population, this certainly one of the more unique aspects of state legislative elections.
 
 As is the case with senatorial elections, a candidate’s chances of winning, depending on the affiliated party, can be heavily affected by the performance of other offices held by a politician in the same (or different) party. For example, one variable is the midterm penalty, which can be seen in the us\_results dataset below. This variable is coded by a -1, 0, or 1 (with respect to a Democratic candidate) and implies that the candidate in the party opposite of the President (Republican or Democrat) is highly favored to win if that election takes place halfway (two years) through a Presidential term. Additionally, there are other variables in the us\_results dataset with potentially important information such as approval rating. In short, the outcome of state legislative elections can be influenced by the performance of candidates in national (and state) offices and the subsequent preferences in following elections.
 
