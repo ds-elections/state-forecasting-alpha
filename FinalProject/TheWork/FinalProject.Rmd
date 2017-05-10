@@ -542,8 +542,7 @@ Calc_err(perc_Dem ~
 
 ```{r}
 Resultsfin <- full_join(Resultsmodel, df2018, by = c("year",
-                                             "chamber",
-                                             "District",
+                                             "chamdist",
                                              "prez_party",
                                              "incumbentparty",
                                              "mid_penalty"))
@@ -571,8 +570,9 @@ sim2018 <- simulate(m8, seed=2, allow.new.levels = TRUE, newdata = Results2018)
 
 sim2018 <- sim2018 %>% 
   mutate(perc_Dem = sim_1, 
-         chamdist = rep(1:120, times = 1)) %>%
-  select(chamdist, perc_Dem)
+         chamdist = rep(1:120, times = 1),
+         year = rep(2018)) %>%
+  select(year, chamdist, perc_Dem)
 
 sim2018
 ```
