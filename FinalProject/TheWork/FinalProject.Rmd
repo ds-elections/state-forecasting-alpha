@@ -383,19 +383,7 @@ Results <- Results %>%
 Results["perc_prez_DemLag2"][is.na(Results["perc_prez_DemLag2"])] <- 0
 Resultsmodel <- Results
 
-Resultsmodel["incumbentparty"][is.na(Resultsmodel["incumbentparty"])] <- 0
-Resultsmodel[c("perc_Dem",
-          "perc_Repub",
-          "perc_prez_Dem",
-          "perc_sen_Dem",
-          "perc_sen2_Dem",
-          "perc_gub_Dem")][is.na(Resultsmodel[c("perc_Dem",
-                                           "perc_Repub",
-                                           "perc_prez_Dem",
-                                           "perc_sen_Dem",
-                                           "perc_sen2_Dem",
-                                           "perc_gub_Dem")])] <- .0
-Resultsmodel["Leg_winner"][is.na(Resultsmodel["Leg_winner"])] <- "No election"
+
 
 Resultsmodel <- Resultsmodel %>%
   mutate(perc_prez_DemLag2 = (lag(perc_prez_Dem, 240) +
@@ -539,9 +527,7 @@ Calc_err(perc_Dem ~
 ### Using the model to predict 2018 results
 
 ```{r}
-Resultsmodel[c("incumbentparty",
-             "perc_sen_DemLag")][is.na(Resultsmodel[c("incumbentparty",
-                                                     "perc_sen_DemLag")])] <- 0
+
 Resultsfin <- full_join(Resultsmodel, df2018, by = c("year",
                                              "chamber",
                                              "chamdist",

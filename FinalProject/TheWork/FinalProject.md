@@ -445,19 +445,7 @@ Results <- Results %>%
 Results["perc_prez_DemLag2"][is.na(Results["perc_prez_DemLag2"])] <- 0
 Resultsmodel <- Results
 
-Resultsmodel["incumbentparty"][is.na(Resultsmodel["incumbentparty"])] <- 0
-Resultsmodel[c("perc_Dem",
-          "perc_Repub",
-          "perc_prez_Dem",
-          "perc_sen_Dem",
-          "perc_sen2_Dem",
-          "perc_gub_Dem")][is.na(Resultsmodel[c("perc_Dem",
-                                           "perc_Repub",
-                                           "perc_prez_Dem",
-                                           "perc_sen_Dem",
-                                           "perc_sen2_Dem",
-                                           "perc_gub_Dem")])] <- .0
-Resultsmodel["Leg_winner"][is.na(Resultsmodel["Leg_winner"])] <- "No election"
+
 
 Resultsmodel <- Resultsmodel %>%
   mutate(perc_prez_DemLag2 = (lag(perc_prez_Dem, 240) +
@@ -564,30 +552,30 @@ summary(m8)
     ##     chamdist)
     ##    Data: Resultsmodel
     ## 
-    ## REML criterion at convergence: 1250.5
+    ## REML criterion at convergence: 574.3
     ## 
     ## Scaled residuals: 
     ##     Min      1Q  Median      3Q     Max 
-    ## -1.1762 -0.7866 -0.6057  0.9202  2.2716 
+    ## -1.9008 -0.6554  0.1190  0.6470  1.7071 
     ## 
     ## Random effects:
     ##  Groups   Name        Variance Std.Dev.
-    ##  chamdist (Intercept) 0.005419 0.07361 
-    ##  Residual             0.117520 0.34281 
-    ## Number of obs: 1680, groups:  chamdist, 120
+    ##  chamdist (Intercept) 0.003337 0.05777 
+    ##  Residual             0.101579 0.31871 
+    ## Number of obs: 957, groups:  chamdist, 120
     ## 
     ## Fixed effects:
-    ##                  Estimate Std. Error t value
-    ## (Intercept)      0.290337   0.039343   7.380
-    ## mid_penalty      0.001937   0.012008   0.161
-    ## incumbentparty   0.346479   0.017002  20.378
-    ## perc_sen_DemLag -0.007427   0.067419  -0.110
+    ##                 Estimate Std. Error t value
+    ## (Intercept)      0.43504    0.04686   9.285
+    ## mid_penalty     -0.02445    0.01459  -1.676
+    ## incumbentparty   0.27936    0.01667  16.757
+    ## perc_sen_DemLag  0.13329    0.08159   1.634
     ## 
     ## Correlation of Fixed Effects:
     ##             (Intr) md_pnl incmbn
-    ## mid_penalty -0.087              
-    ## incmbntprty  0.249 -0.110       
-    ## prc_sn_DmLg -0.961  0.115 -0.292
+    ## mid_penalty -0.088              
+    ## incmbntprty  0.359 -0.130       
+    ## prc_sn_DmLg -0.967  0.106 -0.412
 
 ``` r
 #Simpler model but t-values are higher
@@ -630,14 +618,11 @@ Calc_err(perc_Dem ~
              (1|chamdist))
 ```
 
-    ## [1] 129.1577
+    ## [1] 130.1011
 
 ### Using the model to predict 2018 results
 
 ``` r
-Resultsmodel[c("incumbentparty",
-             "perc_sen_DemLag")][is.na(Resultsmodel[c("incumbentparty",
-                                                     "perc_sen_DemLag")])] <- 0
 Resultsfin <- full_join(Resultsmodel, df2018, by = c("year",
                                              "chamber",
                                              "chamdist",
