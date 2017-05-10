@@ -492,12 +492,10 @@ m7 <- lmer(perc_Dem ~
 
 m8 <- lmer(perc_Dem ~
              mid_penalty +
-             Approve +
              incumbentparty +
              perc_sen_DemLag +
              (1|chamdist),
            data = Resultsmodel)
-
 summary(m8)
 
 #Simpler model but t-values are higher
@@ -508,7 +506,6 @@ summary(m8)
 
 Calc_err <- function(formula = perc_Dem ~
              mid_penalty +
-             Approve +
              incumbentparty +
              perc_sen_DemLag +
              (1|chamdist),
@@ -524,7 +521,6 @@ Calc_err <- function(formula = perc_Dem ~
       filter(year == min(Resultsmodel$year) + 2*(initial_lag + i))
     m <- lmer(formula = perc_Dem ~
              mid_penalty +
-             Approve +
              incumbentparty +
              perc_sen_DemLag +
              (1|chamdist),
@@ -537,7 +533,6 @@ Calc_err <- function(formula = perc_Dem ~
 
 Calc_err(perc_Dem ~
              mid_penalty +
-             Approve +
              incumbentparty +
              perc_sen_DemLag +
              (1|chamdist))
