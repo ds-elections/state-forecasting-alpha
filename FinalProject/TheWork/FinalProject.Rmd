@@ -1,6 +1,6 @@
 ---
 title: "Forecasting the 2018 California Legislative Election"
-author: "EJ Arce"
+author: "EJ Arce and Jonathan Matz"
 date: "4/2/2017"
 output: github_document
 ---
@@ -567,5 +567,11 @@ Results2018 <- Resultsfin %>%
   filter(year == 2018)
 
 
-simulate(m8, seed=2, allow.new.levels = TRUE, newdata = Results2018)
+sim2018 <- simulate(m8, seed=2, allow.new.levels = TRUE, newdata = Results2018)
+
+sim2018 <- sim2018 %>% 
+  mutate(perc_Dem = sim_1) %>%
+  select(perc_Dem)
+
+sim2018
 ```
