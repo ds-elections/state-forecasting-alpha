@@ -572,7 +572,12 @@ bp <- ggplot(Results2018) +
   geom_boxplot(aes(y = sim, x = as.factor(incumbentparty)))
 bp
 
+# bp is a boxplot of our predicted results grouped by incumbency
+
 trend <- ggplot(Resultsfin) +
-  geom_smooth(aes(y = perc_Dem, x = sim))
+  geom_smooth(aes(y = perc_Dem, x = year))
 trend
+mean <- mean(Results2018$sim)
+
+# trend is a time trend of perc_Dem
 ```
