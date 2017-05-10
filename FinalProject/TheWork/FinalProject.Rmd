@@ -568,5 +568,4 @@ Results2018 <- Resultsfin %>%
 
 
 simulate(m8, seed=2, allow.new.levels = TRUE, newdata = Results2018)
-
 ```
