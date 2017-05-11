@@ -10,3 +10,6 @@ We have obtained multiple datasets of results from California state elections fr
 * April 17: Legislative election results, national offices results, and covariate data all clean and joined for further modeling
 * April 19: Initial modelling and 2+ visualizations
 * April 24: Covariates and model improved
+* May 6: Deliverables finished
+* May 9: Model finalized, 2018 simulation run and final visualizations generated
+* May 10: Poster created and project presented
