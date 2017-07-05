@@ -43,12 +43,12 @@ Import the data using the following code
 
 ```{r, echo = TRUE}
 econ <-
-  read.csv(text = getURL("https://raw.githubusercontent.com/ds-elections/state-forecasting-alpha/master/CleanDeliverableData/econ_state.csv"),
+  read.csv("https://raw.githubusercontent.com/ds-elections/state-forecasting-alpha/master/data/econ_state.csv",
            header = TRUE)[,-1]
 leg_results <-
-  read.csv(text = getURL("https://raw.githubusercontent.com/ds-elections/state-forecasting-alpha/master/CleanDeliverableData/leg_results.csv"), header = TRUE)[,-1]
+  read.csv("https://raw.githubusercontent.com/ds-elections/state-forecasting-alpha/master/data/leg_results.csv", header = TRUE)[,-1]
 us_results <-
-  read.csv(text = getURL("https://raw.githubusercontent.com/ds-elections/state-forecasting-alpha/master/CleanDeliverableData/us_results.csv"), header = TRUE)[,-1]
+  read.csv("https://raw.githubusercontent.com/ds-elections/state-forecasting-alpha/master/data/us_results.csv", header = TRUE)[,-1]
 ```
 
 The leg_results and us_results datasets are fully clean. Each observation shows voting totals and covariate data for a single chamber district. The econ dataset shows the national average real personal income after each quarter since 1965.
