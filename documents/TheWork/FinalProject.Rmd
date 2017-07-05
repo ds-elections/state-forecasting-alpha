@@ -8,11 +8,8 @@ output: github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(foreign)
-library(dplyr)
 library(tidyverse)
-library(tidyr)
 library(readxl)
-library(ggplot2)
 library(leaflet)
 library(rgdal)
 library(maptools)
