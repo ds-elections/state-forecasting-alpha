@@ -618,7 +618,7 @@ Calc_err(perc_Dem ~
              (1|chamdist))
 ```
 
-    ## [1] 128.6246
+    ## [1] 126.9437
 
 ### Using the model to predict 2018 results
 
