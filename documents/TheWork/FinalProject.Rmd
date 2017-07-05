@@ -25,11 +25,11 @@ library(lme4)
 We are importing three datasets and we will eventually join them. `LegResults6814` consists of every candidate who ran for a seat in the California State Legislature from 1968 to 2014. `LegResults16` includes such candidates who ran in 2016. `threeoffices` includes the voting totals for three US offices (Presidential, Gubernatorial, and US Senate) in each of the California senatorial and assembly districts, from 1966 to 2016. This dataset previously consisted of three separate datasets, which Jonathan and I cleaned in R or Excel, to create `threeoffices`.
 
 ```{r, warning=FALSE, message=FALSE}
-LegResults6814 <- read.dta("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/SLERs1967to2015_20160912b_CA.dta")
+LegResults6814 <- read.dta("../../data-raw/SLERs1967to2015_20160912b_CA.dta")
 
-LegResults16 <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/001_CA2016GenOfficecopy.xls")
+LegResults16 <- read_excel("../../data-raw/001_CA2016GenOfficecopy.xls")
 
-threeoffices <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/threeoffices662016copy.xlsx")
+threeoffices <- read_excel("../../data-raw/threeoffices662016copy.xlsx")
 ```
 
 ### Cleaning election results data
@@ -41,7 +41,7 @@ For both datasets, we want each observation to represent a given chamber's distr
 # Selecting and renaming variables of interest, and filtering the dataset to only include democratic and republican candidates. 
 
 LegResults6814 <- LegResults6814 %>%
-  select(v05, v07, v09z, v21, v22, v23) %>%
+  dplyr::select(v05, v07, v09z, v21, v22, v23) %>%
   rename(year = v05,
          chamber = v07,
          District = v09z,
@@ -67,7 +67,7 @@ LegResults6814[is.na(LegResults6814)] <- 0
 # Repeating the same steps for LegResults16
 
 LegResults16 <- LegResults16 %>%
-  select(v05, v07, v09, partyoriginal, v23, incumbency) %>%
+  dplyr::select(v05, v07, v09, partyoriginal, v23, incumbency) %>%
   rename(year = v05,
          chamber = v07,
          District = v09,
@@ -120,7 +120,7 @@ Our dataset on voting totals for presidential, gubernatorial, and US Senate offi
 threeoffices <- threeoffices %>%
   filter(Dummy1 == 1,
          year > 1972) %>%
-  select(year, chamber, dist, (17:24)) %>%
+  dplyr::select(year, chamber, dist, (17:24)) %>%
   rename(District = dist)
 ```
 
@@ -129,11 +129,11 @@ Now both datasets are clean, and we will join them soon. However, first we need 
 ### Importing and cleaning presidential approval and economy strength data
 
 ```{r}
-Econ_State2 <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/econ-strength.xls")
-PrezApprove <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/Gallup_Prez_Approv_1966to2016.xlsx")
+Econ_State2 <- read_excel("../../data-raw/econ-strength.xls")
+PrezApprove <- read_excel("../../data-raw/Gallup_Prez_Approv_1966to2016.xlsx")
 
 PrezApprove <- PrezApprove %>%
-  select(Year, Approve) %>%
+  dplyr::select(Year, Approve) %>%
   rename(year = Year)
 
 # For percent change in real income, we are using Dr. Klarner's weighted percent change formula. This includes attributing the highest weight to the most recent quarter. In our case, since we will test this model days before the election, the second quarter (July through September) will have the largest weight. The reason we are doing this is because we expect that voters focus more on how the economy has changed now, and less 10 months ago. First, we need to measure percent change for each quarter. Our dataset only gives raw income values, so the first mutation creates percent changes for each quarter, and our second mutation creates our weighted annual percent change.
@@ -169,7 +169,7 @@ Results <- left_join(Results, PrezApprove, by = "year")
 
 # Importing 2018 empty data and joining it to include lagged effects.
 
-df2018 <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/2018template.xlsx")
+df2018 <- read_excel("../../data-raw/2018template.xlsx")
 
 df2018 <- df2018 %>%
   mutate(prez_party = -1, mid_penalty = -1)
@@ -204,8 +204,8 @@ head(Results)
 To visualize our data, we would like to include a map of California senatorial and assembly districts. The shapefiles necessary to do this were obtained from the Census Bureau.
 
 ```{r}
-SENshape <- readShapePoly("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/CA_SEN_shapefile/cb_2016_06_sldu_500k.shp")
-HSshape <- readShapePoly("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/CA_HS_shapefile/cb_2016_06_sldl_500k.shp")
+SENshape <- readShapePoly("../../data-raw/CA_SEN_shapefile/cb_2016_06_sldu_500k.shp")
+HSshape <- readShapePoly("../../data-raw/CA_HS_shapefile/cb_2016_06_sldl_500k.shp")
 
 SENshapefort <- fortify(SENshape, region = "NAME")
 HSshapefort <- fortify(HSshape, region = "NAME")
@@ -562,7 +562,7 @@ bp
 
 ```{r}
 # Importing the last remaining senatorial districts for map plot
-lastresults <- read_excel("~/Desktop/state-forecasting-alpha/032_StateLegForecast_CAcopy/2018LastDistricts.xlsx")
+lastresults <- read_excel("../../data-raw/2018LastDistricts.xlsx")
 
 ```
 
