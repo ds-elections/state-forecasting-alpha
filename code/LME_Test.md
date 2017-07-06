@@ -99,7 +99,7 @@ AIC(Basic_ME)
 
     ## [1] 1884.294
 
-In short, this basically gives each observation, in this case, a given cake, a unique intercept based on its respective recipe (and how that recipe might influence the outcome). This is done using the (x|y) command where x is a given random effect and y is all the possible levels or factors of that effect and subsequently a unique intercept will be assigned to each possible combination. Since, in this case, we are just interested in recipes as opposed to, say, recipes based on how well they are replicated (recipe|replicate) or some similar combination, then x is simply set to equal 1. The parentheses are necessary to specify that we are dealing with random effects and want to give each observation its unique inctercept. The most successful model should have the lowest AIC value.
+In short, this basically gives each observation, in this case, a given cake, a unique intercept based on its respective recipe (and how that recipe might influence the outcome). This is done using the `(x|y)` command where x is a given random effect and y is all the possible levels or factors of that effect and subsequently a unique intercept will be assigned to each possible combination. Since, in this case, we are just interested in recipes as opposed to, say, recipes based on how well they are replicated `(recipe|replicate)` or some similar combination, then x is simply set to equal 1. The parentheses are necessary to specify that we are dealing with random effects and want to give each observation its unique inctercept. The most successful model should have the lowest AIC value.
 
 ### Model 3: Multiple Group Effects
 
@@ -160,7 +160,7 @@ AIC(Basic_ME2)
 
     ## [1] 1680.048
 
-The model is not restricted to one group effect (i.e. more than one term can be used to identify the unique intercept). In this case I used replicate (which is a factored variable that takes values between 1 and 15), because it was the only remaining variable, but also to see if it would improve the fitness of the model. The effect of including 'period' as one of the group effects that determined the unique intercept was fairly large as it only decreased the AIC from ~1884 to ~1680 between models Basic\_ME and Basic\_ME2. While the AIC is still very large overall, which makes sense given the type of variables we are dealing with (see visualization below), this shows that the (1|replicate) term does lead to a more fit model, if only slightly.
+The model is not restricted to one group effect (i.e. more than one term can be used to identify the unique intercept). In this case I used replicate (which is a factored variable that takes values between 1 and 15), because it was the only remaining variable, but also to see if it would improve the fitness of the model. The effect of including 'period' as one of the group effects that determined the unique intercept was fairly large as it only decreased the AIC from ~1884 to ~1680 between models Basic\_ME and Basic\_ME2. While the AIC is still very large overall, which makes sense given the type of variables we are dealing with (see visualization below), this shows that the `(1|replicate)` term does lead to a more fit model, if only slightly.
 
 ``` r
 Viz1 <- ggplot(cake, aes(temp, angle, color = recipe)) + geom_point()
@@ -294,7 +294,7 @@ AIC(ME)
 
     ## [1] 1741.003
 
-This model deals with a random intercept and a slope that is correlated to that random intercept. The (recipe|replicate) command or x + (x|y) command tells R to assign a random intercept to each obeservation based on replicate values but this time it assigns a random slope for different replicate levels. Additionally, the slope of recipe will now vary according to the different replicate values/levels associated with it, so there is now some correlation between the recipe and replicate variables and therefore the slope of recipe will be correlated with the random intercept for replicate. In other words, the slope for x conditional on y is somewhat correlated with the random intercept for y. This model is fairly decent, as it has a somwhat low, but still relatively middling, AIC value. Thus, it seems thus far that Basic\_ME2 is the most effective model for the given data.
+This model deals with a random intercept and a slope that is correlated to that random intercept. The `(recipe|replicate)` command or `x + (x|y)` command tells R to assign a random intercept to each observation based on replicate values but this time it assigns a random slope for different replicate levels. Additionally, the slope of recipe will now vary according to the different replicate values/levels associated with it, so there is now some correlation between the recipe and replicate variables and therefore the slope of recipe will be correlated with the random intercept for replicate. In other words, the slope for x conditional on y is somewhat correlated with the random intercept for y. This model is fairly decent, as it has a somwhat low, but still relatively middling, AIC value. Thus, it seems thus far that Basic\_ME2 is the most effective model for the given data.
 
 ### Model 6: Uncorrelated Slope (and Random Intercept)
 
@@ -424,7 +424,7 @@ AIC(ME)
 
     ## [1] 1670.132
 
-The intercept form (g1|g2) was not on the webpage I checked, nor was it in the pdf Andrew gave us, but it seems to lead to a relatively effective model as the AIC is relatively low (1670).
+The intercept form `(g1|g2)` was not on the webpage I checked, nor was it in the pdf Andrew gave us, but it seems to lead to a relatively effective model as the AIC is relatively low (1670).
 
 ### Some Visualizations:
 

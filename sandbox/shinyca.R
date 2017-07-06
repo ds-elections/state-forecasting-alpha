@@ -22,13 +22,13 @@ HSdata <- Results %>%
   filter(chamber == "HS") %>%
   rename(NAME = District)
 
-SENmap <- readOGR(dsn = "032_StateLegForecast_CAcopy/CA_SEN_shapefile",
+SENmap <- readOGR(dsn = "data-raw/CA_SEN_shapefile",
                   layer = "cb_2016_06_sldu_500k")
-HSmap <- readOGR(dsn = "032_StateLegForecast_CAcopy/CA_HS_shapefile",
+HSmap <- readOGR(dsn = "data-raw/CA_HS_shapefile",
                  layer = "cb_2016_06_sldl_500k")
 
-SENleaf <- merge(SENmap, SENdata, by = "NAME")
-HSleaf <- merge(HSmap, HSdata, by = "NAME")
+SENleaf <- merge(SENmap, SENdata, by = "NAME", duplicateGeoms = TRUE)
+HSleaf <- merge(HSmap, HSdata, by = "NAME", duplicateGeoms = TRUE)
 
 
 pal <- colorNumeric(c("red", "white", "blue"), 0:1, na.color = "grey")
@@ -64,7 +64,8 @@ ui <- fluidPage(
       sliderInput(inputId = "year",
                   label = "Choose an election",
                   min = 1974,
-                  max = 2016),
+                  max = 2016,
+                  value = 2016),
       checkboxGroupInput(inputId = "chamber",
                          label = "Choose a house",
                          choices = c("Senate" = "SEN",
@@ -81,7 +82,7 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   filteredResults <- reactive({
-    Results[Results$year = input$range[2]]
+    Results[Results$year == input$range[2]]
   })
   output$CAmap <- renderLeaflet({
     # generate bins based on input$bins from ui.R
