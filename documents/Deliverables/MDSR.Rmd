@@ -7,7 +7,6 @@ output: github_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
-library("RCurl")
 library("dplyr")
 library("ggplot2")
 library("tidyr")
