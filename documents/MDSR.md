@@ -1,4 +1,4 @@
-Deliverables
+MDSR Exercises
 ================
 EJ Arce and Jonathan Matz
 5/4/2017
@@ -93,7 +93,7 @@ head(results)
 plot1
 ```
 
-![](MDSR_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](MDSR_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-5-1.png)
 
 -   Other than a change in political views, what do you think could be a cause for the incumbent party losing the election (i.e. a Republican receiving more votes in an election where the Democratic party was the incumbent party)? Does the data account for this? (hint: think about the property of legislative districts)
 
