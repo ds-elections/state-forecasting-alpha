@@ -21,4 +21,4 @@ Data and guidance provided on this project by [Dr. Carl Klarner](http://klarnerp
 
 This repo is organized following the guidelines outlined [here](https://github.com/ds-elections/summer-2017/blob/master/RepoProposal/documents/RepoProposal.md), adapted for use in this class from work by [Project TIER](http://www.projecttier.org/) and [Thomas Leeper](http://thomasleeper.com/2016/11/analysis-as-package/)
 
-- [Jay Lee](https://github.com/jayleetx), Reed College
+— [Jay Lee](https://github.com/jayleetx), Reed College
